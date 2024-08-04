@@ -1,20 +1,25 @@
 (ns portfolio-api.core
-  (:require [portfolio-api.data :as data]
-            [ring.adapter.jetty :as jetty]
+  (:require [mount.core :as mount]
+            [portfolio-api.routes :as routes]
+            [reitit.coercion.schema]
             [reitit.ring :as ring]
-            [mount.core :as mount]
-            [schema.core :as s]))
-
-(defn handler [_]
-  {:status 200
-   :headers {"Content-Type" "text/plain"}
-   :body "Hello Test"})
+            [ring.adapter.jetty :as jetty]
+            [muuntaja.core :as m]
+            [reitit.ring.middleware.muuntaja :as muuntaja]
+            [reitit.ring.middleware.parameters :as parameters]
+            [reitit.ring.coercion :as rrc]))
 
 (def app
   (ring/ring-handler
    (ring/router
-    ["/api"
-     ["/article" {:post {:handler handler}}]])))
+    ["/api" (routes/article-routes)]
+    {:data {:muuntaja m/instance
+            :coercion reitit.coercion.schema/coercion
+            :middleware [muuntaja/format-middleware
+                         parameters/parameters-middleware
+                         rrc/coerce-exceptions-middleware
+                         rrc/coerce-request-middleware
+                         rrc/coerce-response-middleware]}})))
 
 (mount/defstate server
   :start (jetty/run-jetty app {:port 3001 :join? false})
@@ -22,5 +27,4 @@
 
 (comment
   (mount/start)
-  (mount/stop)
-  (s/validate data/Article {:id "test" :name "Test" :markdown 10 :project-completion 10}))
+  (mount/stop))
