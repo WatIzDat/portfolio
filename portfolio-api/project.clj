@@ -11,5 +11,9 @@
                  [metosin/reitit-middleware "0.7.1"]
                  [metosin/muuntaja "0.6.10"]
                  [mount "0.1.18"]
-                 [prismatic/schema "1.4.1"]]
+                 [prismatic/schema "1.4.1"]
+                 [com.github.seancorfield/next.jdbc "1.3.939"]
+                 [com.github.seancorfield/honeysql "2.6.1147"]
+                 [org.postgresql/postgresql "42.7.3"]
+                 [com.mchange/c3p0 "0.10.1"]]
   :repl-options {:init-ns portfolio-api.core})

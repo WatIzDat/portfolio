@@ -7,7 +7,15 @@
             [muuntaja.core :as m]
             [reitit.ring.middleware.muuntaja :as muuntaja]
             [reitit.ring.middleware.parameters :as parameters]
-            [reitit.ring.coercion :as rrc]))
+            [reitit.ring.coercion :as rrc]
+            [next.jdbc :as jdbc]
+            [next.jdbc.connection :as connection])
+  (:import (com.mchange.v2.c3p0 ComboPooledDataSource)))
+
+(def ^:private db-spec {:dbtype "postgresql"
+                        :dbname "portfolio"
+                        :user "postgres"
+                        :password "password"})
 
 (def app
   (ring/ring-handler
@@ -25,6 +33,11 @@
   :start (jetty/run-jetty app {:port 3001 :join? false})
   :stop (.stop server))
 
+(mount/defstate db
+  :start (connection/->pool ComboPooledDataSource db-spec)
+  :stop (.close db))
+
 (comment
   (mount/start)
-  (mount/stop))
+  (mount/stop)
+  (jdbc/execute! db ["SELECT version();"]))
