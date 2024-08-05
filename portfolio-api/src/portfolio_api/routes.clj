@@ -11,4 +11,11 @@
               :responses {200 spec/GetAllNoMarkdownResponse}}}]
    ["/:id" {:get {:handler handler/get-only-markdown-by-id
                   :parameters {:path spec/GetOnlyMarkdownByIdRequest}
-                  :responses {200 spec/GetOnlyMarkdownByIdResponse}}}]])
+                  :responses {200 spec/GetOnlyMarkdownByIdResponse}}
+            :delete {:handler handler/delete
+                     :parameters {:path spec/DeleteArticleCommand}
+                     :responses {204 nil}}
+            :put {:handler handler/edit
+                  :parameters {:path spec/EditArticleCommandPath
+                               :body spec/EditArticleCommandBody}
+                  :responses {204 nil}}}]])

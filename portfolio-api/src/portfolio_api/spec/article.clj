@@ -14,3 +14,8 @@
 
 (s/defschema GetOnlyMarkdownByIdRequest {:id (:id Article)})
 (s/defschema GetOnlyMarkdownByIdResponse {:body (:markdown Article)})
+
+(s/defschema DeleteArticleCommand {:id (:id Article)})
+
+(s/defschema EditArticleCommandPath {:id (:id Article)})
+(s/defschema EditArticleCommandBody Article)
