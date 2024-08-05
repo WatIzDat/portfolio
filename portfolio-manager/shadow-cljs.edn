@@ -1,6 +1,6 @@
 {:nrepl {:port 8777}
 
- 
+
 
  :source-paths ["src" "test"]
 
@@ -8,6 +8,7 @@
  [[reagent "1.1.1"]
   [re-frame "1.4.2"]
 
+  [com.teknql/shadow-cljs-tailwind-jit "1.0.0"]
   [binaryage/devtools "1.0.6"]]
 
  :dev-http
@@ -22,8 +23,16 @@
    :modules
    {:app {:init-fn portfolio-manager.core/init}}
    :devtools
-   {:preloads []}
+   {:preloads []
+    :http-root "resources/public/"
+    :http-port 3000}
    :dev
    {:compiler-options
     {:closure-defines
-     { }}}}}}
+     {}}
+    :build-hooks
+    [(teknql.tailwind/start-watch!)]}
+   :release
+   {:build-hooks
+    [(teknql.tailwind/compile-release!)]}
+   :tailwind/output "resources/public/css/site.css"}}}

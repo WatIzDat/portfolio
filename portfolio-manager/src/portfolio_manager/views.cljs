@@ -2,11 +2,10 @@
   (:require
    [re-frame.core :as re-frame]
    [portfolio-manager.subs :as subs]
-   ))
+   [trix]))
 
 (defn main-panel []
   (let [name (re-frame/subscribe [::subs/name])]
-    [:div
-     [:h1
-      "Hello from " @name]
-     ]))
+    [:div.flex.flex-col.justify-center.items-center.h-screen
+     [:trix-toolbar {:id "toolbar"}]
+     [:trix-editor {:class "w-2/3 h-2/3" :toolbar "toolbar"}]]))

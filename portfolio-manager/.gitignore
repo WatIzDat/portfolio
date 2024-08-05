@@ -16,3 +16,5 @@
 
 /.clj-kondo/.cache
 /.lsp/.cache
+
+/.calva/output-window
