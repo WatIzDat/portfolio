@@ -8,4 +8,9 @@
    :project-completion (s/constrained s/Int (fn less-than-100? [x] (<= x 100)))})
 
 (s/defschema CreateArticleCommand Article)
-(s/defschema CreateArticleResponse {:body s/Str})
+(s/defschema CreateArticleResponse {:body (:id Article)})
+
+(s/defschema GetAllNoMarkdownResponse (dissoc Article :markdown))
+
+(s/defschema GetOnlyMarkdownByIdRequest {:id (:id Article)})
+(s/defschema GetOnlyMarkdownByIdResponse {:body (:markdown Article)})
