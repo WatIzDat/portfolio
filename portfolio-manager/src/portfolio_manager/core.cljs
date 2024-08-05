@@ -5,7 +5,7 @@
    [portfolio-manager.events :as events]
    [portfolio-manager.views :as views]
    [portfolio-manager.config :as config]
-   ))
+   ["quill$default" :as quill]))
 
 
 (defn dev-setup []
@@ -21,4 +21,8 @@
 (defn init []
   (re-frame/dispatch-sync [::events/initialize-db])
   (dev-setup)
-  (mount-root))
+  (mount-root)
+  (new quill "#editor" (js-obj "theme" "snow")))
+
+(comment
+  (js-obj "theme" "snow"))

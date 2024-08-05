@@ -35,4 +35,7 @@
    :release
    {:build-hooks
     [(teknql.tailwind/compile-release!)]}
-   :tailwind/output "resources/public/css/site.css"}}}
+   :tailwind/output "resources/public/css/site.css"
+   :tailwind/files
+   {:base-path "./"
+    :tailwind.css "./src/portfolio_manager/css/app.css"}}}}
