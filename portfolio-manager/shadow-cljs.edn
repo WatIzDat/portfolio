@@ -8,6 +8,7 @@
  [[reagent "1.1.1"]
   [re-frame "1.4.2"]
   [superstructor/re-frame-fetch-fx "0.4.0"]
+  [fork "2.4.3"]
 
   [com.teknql/shadow-cljs-tailwind-jit "1.0.0"]
   [binaryage/devtools "1.0.6"]]
