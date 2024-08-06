@@ -22,7 +22,10 @@
   (re-frame/dispatch-sync [::events/initialize-db])
   (dev-setup)
   (mount-root)
-  (new quill "#editor" (js-obj "theme" "snow")))
+  (re-frame/dispatch-sync
+   [::events/initialize-editor-data
+    (new quill "#editor" (js-obj "theme" "snow"))]))
 
 (comment
-  (js-obj "theme" "snow"))
+  (js-obj "theme" "snow")
+  (js->clj (. (new quill "#editor" (js-obj "theme" "snow")) getContents)))
