@@ -6,8 +6,3 @@
  ::name
  (fn [db]
    (:name db)))
-
-(re-frame/reg-sub
- ::delta
- (fn [db _]
-   (:delta db)))

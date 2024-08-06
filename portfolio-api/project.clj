@@ -16,6 +16,7 @@
                  [com.github.seancorfield/honeysql "2.6.1147"]
                  [org.postgresql/postgresql "42.7.3"]
                  [com.mchange/c3p0 "0.10.1"]
+                 [ring-cors "0.1.13"]
 
                  [org.clojure/tools.namespace "1.5.0"]]
   :repl-options {:init-ns dev})

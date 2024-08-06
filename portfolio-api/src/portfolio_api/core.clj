@@ -9,12 +9,23 @@
             [reitit.ring.middleware.parameters :as parameters]
             [reitit.ring.coercion :as rrc]
             [next.jdbc :as jdbc]
-            [portfolio-api.db :refer [db]]))
+            [portfolio-api.db :refer [db]]
+            [ring.middleware.cors :as cors]))
 
 (def app
   (ring/ring-handler
    (ring/router
-    ["/api" (routes/article-routes)]
+    ["/api"
+     {:middleware [[cors/wrap-cors
+                    :access-control-allow-origin [#"http://localhost:8280"]
+                    :access-control-allow-methods [:get :post :put :delete]
+                    :access-control-allow-headers #{"accept"
+                                                    "accept-encoding"
+                                                    "accept-language"
+                                                    "authorization"
+                                                    "content-type"
+                                                    "origin"}]]}
+     (routes/article-routes)]
     {:data {:muuntaja m/instance
             :coercion reitit.coercion.schema/coercion
             :middleware [muuntaja/format-middleware

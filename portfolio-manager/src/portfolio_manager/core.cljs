@@ -5,6 +5,7 @@
    [portfolio-manager.events :as events]
    [portfolio-manager.views :as views]
    [portfolio-manager.config :as config]
+   [portfolio-manager.consts :as consts]
    ["quill$default" :as quill]))
 
 
@@ -22,9 +23,7 @@
   (re-frame/dispatch-sync [::events/initialize-db])
   (dev-setup)
   (mount-root)
-  (re-frame/dispatch-sync
-   [::events/initialize-editor-data
-    (new quill "#editor" (js-obj "theme" "snow"))]))
+  (new quill consts/editor-id (js-obj "theme" "snow")))
 
 (comment
   (js-obj "theme" "snow")
