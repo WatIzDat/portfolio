@@ -12,6 +12,11 @@
    db/default-db))
 
 (re-frame/reg-event-db
+ ::set-active-panel
+ (fn [db [_ panel-name]]
+   (assoc db :active-panel panel-name)))
+
+(re-frame/reg-event-db
  ::upload-success
  (fn [db [_ path]]
    (println "Success!")

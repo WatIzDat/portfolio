@@ -1,12 +1,12 @@
 (ns portfolio-manager.core
-  (:require
-   [reagent.dom :as rdom]
-   [re-frame.core :as re-frame]
-   [portfolio-manager.events :as events]
-   [portfolio-manager.views :as views]
-   [portfolio-manager.config :as config]
-   [portfolio-manager.consts :as consts]
-   ["quill$default" :as quill]))
+  (:require ["quill$default" :as quill]
+            [portfolio-manager.config :as config]
+            [portfolio-manager.consts :as consts]
+            [portfolio-manager.events :as events]
+            [portfolio-manager.routes :as routes]
+            [portfolio-manager.views :as views]
+            [re-frame.core :as re-frame]
+            [reagent.dom :as rdom]))
 
 
 (defn dev-setup []
@@ -23,8 +23,9 @@
   (re-frame/dispatch-sync [::events/initialize-db])
   (dev-setup)
   (mount-root)
-  (new quill consts/editor-id (js-obj "theme" "snow")))
+  (routes/app-routes))
 
 (comment
   (js-obj "theme" "snow")
-  (js->clj (. (new quill "#editor" (js-obj "theme" "snow")) getContents)))
+  (js->clj (. (new quill "#editor" (js-obj "theme" "snow")) getContents))
+  (new quill consts/editor-id (js-obj "theme" "snow")))
