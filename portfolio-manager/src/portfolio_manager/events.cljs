@@ -17,6 +17,23 @@
    (assoc db :active-panel panel-name)))
 
 (re-frame/reg-event-db
+ ::get-articles-success
+ (fn [db [_ result]]
+   (as-> (:body result) $
+     (.parse js/JSON $)
+     (js->clj $ :keywordize-keys true)
+     (println $))))
+
+(re-frame/reg-event-fx
+ ::get-articles
+ (fn [_ _]
+   {:fx [[:fetch {:method :get
+                  :url "http://localhost:3001/api/article"
+                  :mode :cors
+                  :credentials :omit
+                  :on-success [::get-articles-success]}]]}))
+
+(re-frame/reg-event-db
  ::upload-success
  (fn [db [_ path]]
    (println "Success!")

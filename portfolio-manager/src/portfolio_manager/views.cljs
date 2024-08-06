@@ -9,13 +9,32 @@
 
 (defn dashboard-panel []
   (fn []
-    [:h1 "This is the dashboard panel."]))
+    (reagent/create-class
+     {:component-did-mount #(re-frame/dispatch [::events/get-articles])
+      :display-name "Dashboard"
+      :reagent-render
+      (fn []
+        [:div.flex.justify-center.items-center.h-screen
+         [:div.flex.flex-col.justify-center.items-center {:class "size-1/3"}
+          [:div.flex.flex-row.w-full.items-end
+           [:h1.w-full.text-2xl "Articles"]
+           [:button.bg-blue-500.text-white.px-4.py-2.rounded-lg.w-72
+            "Create New"]]
+
+          [:div.flex.flex-col.mt-4.bg-gray-300.size-full.rounded-3xl.p-4
+           [:ul.flex.flex-col.gap-4.overflow-y-auto
+            [:li
+             [:div.flex.bg-gray-500.rounded-lg.p-2.text-white
+              [:div.flex-grow
+               [:h2.text-lg "Test Project"]
+               [:p "test-project"]]
+              [:p "67%"]]]]]]])})))
 
 (defn article-panel []
   (fn []
     (reagent/create-class
      {:component-did-mount #(new quill consts/editor-id (js-obj "theme" "snow"))
-      :display-name "test component"
+      :display-name "Upload Form"
       :reagent-render
       (fn []
         [:div.flex.flex-col.justify-center.items-center.h-screen
