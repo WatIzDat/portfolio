@@ -58,7 +58,7 @@
                       :form-id "form"
                       :prevent-default? true
                       :clean-on-unmount? true
-                      :on-submit #(re-frame/dispatch [::events/upload %])}
+                      :on-submit #(re-frame/dispatch [::events/article-form-submit % edit?])}
            (fn [{:keys [values
                         form-id
                         handle-change

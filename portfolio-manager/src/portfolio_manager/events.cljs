@@ -1,5 +1,6 @@
 (ns portfolio-manager.events
   (:require ["quill$default" :as q]
+            [clojure.string :as string]
             [fork.re-frame :as fork]
             [portfolio-manager.consts :as consts]
             [portfolio-manager.db :as db]
@@ -64,22 +65,44 @@
    (println "Success!")
    (fork/set-submitting db path false)))
 
+(re-frame/reg-event-db
+ ::edit-success
+ (fn [db [_ path]]
+   (println "edit success")
+   (fork/set-submitting db path false)))
+
 (re-frame/reg-event-fx
- ::upload
- (fn [{db :db} [_ {:keys [values _ path]}]]
+ ::article-form-submit
+ (fn [{db :db} [_ {:keys [values _ path]} edit?]]
    (let [editor (.querySelector js/document consts/editor-id)
          delta (js->clj (.stringify js/JSON (.getContents (q/find editor))))]
      (println (values "id"))
      {:db (fork/set-submitting db path true)
-      :fx [[:fetch {:method :post
-                    :url "http://localhost:3001/api/article"
-                    :request-content-type :json
-                    :headers {"Accept" "application/json"
-                              "Origin" "http://localhost:8280"}
-                    :body {:id (values "id")
-                           :name (values "name")
-                           :markdown delta
-                           :project-completion (parse-long (values "project-completion"))}
-                    :mode :cors
-                    :credentials :omit
-                    :on-success [::upload-success path]}]]})))
+      :fx (if (not edit?)
+            [[:fetch {:method :post
+                      :url "http://localhost:3001/api/article"
+                      :request-content-type :json
+                      :headers {"Accept" "application/json"
+                                "Origin" "http://localhost:8280"}
+                      :body {:id (values "id")
+                             :name (values "name")
+                             :markdown delta
+                             :project-completion (parse-long (values "project-completion"))}
+                      :mode :cors
+                      :credentials :omit
+                      :on-success [::upload-success path]}]]
+            (let [id (-> (.. js/window -location -pathname)
+                         (string/split #"/")
+                         (last))]
+              [[:fetch {:method :put
+                        :url (str "http://localhost:3001/api/article/" id)
+                        :request-content-type :json
+                        :headers {"Accept" "application/json"
+                                  "Origin" "http://localhost:8280"}
+                        :body {:id id
+                               :name (values "name")
+                               :markdown delta
+                               :project-completion (parse-long (str (values "project-completion")))}
+                        :mode :cors
+                        :credentials :omit
+                        :on-success [::edit-success path]}]]))})))
