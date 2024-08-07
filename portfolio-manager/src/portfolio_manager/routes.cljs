@@ -5,7 +5,8 @@
             [portfolio-manager.events :as events]))
 
 (def routes ["/" {"" :dashboard
-                  ["article/" :id] :article}])
+                  ["article"] :upload-article
+                  ["article/" :id] :edit-article}])
 
 (defn- parse-url [url]
   (bidi/match-route routes url))

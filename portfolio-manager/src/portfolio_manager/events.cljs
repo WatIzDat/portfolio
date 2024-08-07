@@ -22,7 +22,7 @@
    (as-> (:body result) $
      (.parse js/JSON $)
      (js->clj $ :keywordize-keys true)
-     (println $))))
+     (assoc db :articles $))))
 
 (re-frame/reg-event-fx
  ::get-articles
