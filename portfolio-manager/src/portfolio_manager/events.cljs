@@ -3,6 +3,7 @@
             [fork.re-frame :as fork]
             [portfolio-manager.consts :as consts]
             [portfolio-manager.db :as db]
+            [portfolio-manager.effects :as effects]
             [re-frame.core :as re-frame]
             [superstructor.re-frame.fetch-fx]))
 
@@ -15,6 +16,21 @@
  ::set-active-panel
  (fn [db [_ panel-name]]
    (assoc db :active-panel panel-name)))
+
+(re-frame/reg-event-fx
+ ::get-article-by-id-success
+ (fn [_ [_ result]]
+   (println (:body result))
+   {::effects/set-quill-contents (:body result)}))
+
+(re-frame/reg-event-fx
+ ::get-article-by-id
+ (fn [_ [_ id]]
+   {:fx [[:fetch {:method :get
+                  :url (str "http://localhost:3001/api/article/" id)
+                  :mode :cors
+                  :credentials :omit
+                  :on-success [::get-article-by-id-success]}]]}))
 
 (re-frame/reg-event-db
  ::get-articles-success

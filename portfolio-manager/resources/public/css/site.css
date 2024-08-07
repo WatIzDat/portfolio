@@ -594,6 +594,10 @@ html {
   display: flex;
 }
 
+.contents {
+  display: contents;
+}
+
 .size-2\/3 {
   width: 66.666667%;
   height: 66.666667%;

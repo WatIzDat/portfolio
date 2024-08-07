@@ -1,5 +1,6 @@
 (ns portfolio-manager.views
   (:require ["quill$default" :as quill]
+            [clojure.string :as string]
             [fork.re-frame :as fork]
             [portfolio-manager.consts :as consts]
             [portfolio-manager.events :as events]
@@ -40,7 +41,13 @@
 (defn article-panel [edit?]
   (fn []
     (reagent/create-class
-     {:component-did-mount #(new quill consts/editor-id (js-obj "theme" "snow"))
+     {:component-did-mount
+      (fn []
+        (new quill consts/editor-id (js-obj "theme" "snow"))
+        (re-frame/dispatch
+         [::events/get-article-by-id (-> (.. js/window -location -pathname)
+                                         (string/split #"/")
+                                         (last))]))
       :display-name (if edit? "Edit Article Panel" "Upload Article Panel")
       :reagent-render
       (fn []
@@ -56,7 +63,8 @@
                         handle-change
                         handle-blur
                         submitting?
-                        handle-submit]}]
+                        handle-submit
+                        set-values]}]
              [:form.flex.flex-col.size-full
               {:id form-id
                :on-submit handle-submit}
@@ -89,8 +97,7 @@
                   :on-change handle-change
                   :on-blur handle-blur
                   :value (values "project-completion")}]]]
-              [:div {:class "size-full" :id "editor"}
-               [:p "Hello World"]]
+              [:div {:class "size-full" :id "editor"}]
               [:div.flex.flex-row-reverse
                [:button.bg-blue-500.text-white.px-4.py-2.rounded-lg.mt-4
                 {:type "submit"
