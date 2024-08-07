@@ -110,8 +110,15 @@
               [:div.flex.flex-row-reverse
                [:button.bg-blue-500.text-white.px-4.py-2.rounded-lg.mt-4
                 {:type "submit"
+                 :on-click #(set-values {"is-delete" false})
                  :disabled submitting?}
-                (if edit? "Edit" "Upload")]]])]]])})))
+                (if edit? "Save" "Upload")]
+               (when edit?
+                 [:button.bg-red-500.text-white.px-4.py-2.rounded-lg.mt-4.mr-4
+                  {:type "submit"
+                   :on-click #(set-values {"is-delete" true})
+                   :disabled submitting?}
+                  "Delete"])]])]]])})))
 
 (defmulti panels identity)
 (defmethod panels :dashboard-panel [] [dashboard-panel])

@@ -71,6 +71,12 @@
    (println "edit success")
    (fork/set-submitting db path false)))
 
+(re-frame/reg-event-db
+ ::delete-success
+ (fn [db [_ path]]
+   (println "delete success")
+   (fork/set-submitting db path false)))
+
 (re-frame/reg-event-fx
  ::article-form-submit
  (fn [{db :db} [_ {:keys [values _ path]} edit?]]
@@ -94,15 +100,21 @@
             (let [id (-> (.. js/window -location -pathname)
                          (string/split #"/")
                          (last))]
-              [[:fetch {:method :put
-                        :url (str "http://localhost:3001/api/article/" id)
-                        :request-content-type :json
-                        :headers {"Accept" "application/json"
-                                  "Origin" "http://localhost:8280"}
-                        :body {:id id
-                               :name (values "name")
-                               :markdown delta
-                               :project-completion (parse-long (str (values "project-completion")))}
-                        :mode :cors
-                        :credentials :omit
-                        :on-success [::edit-success path]}]]))})))
+              (if (values "is-delete")
+                [[:fetch {:method :delete
+                          :url (str "http://localhost:3001/api/article/" id)
+                          :mode :cors
+                          :credentials :omit
+                          :on-success [::delete-success path]}]]
+                [[:fetch {:method :put
+                          :url (str "http://localhost:3001/api/article/" id)
+                          :request-content-type :json
+                          :headers {"Accept" "application/json"
+                                    "Origin" "http://localhost:8280"}
+                          :body {:id id
+                                 :name (values "name")
+                                 :markdown delta
+                                 :project-completion (parse-long (str (values "project-completion")))}
+                          :mode :cors
+                          :credentials :omit
+                          :on-success [::edit-success path]}]])))})))
