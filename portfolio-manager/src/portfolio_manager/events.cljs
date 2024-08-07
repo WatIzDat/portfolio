@@ -14,14 +14,12 @@
    db/default-db))
 
 (re-frame/reg-event-db
- ::set-active-panel
- (fn [db [_ panel-name]]
-   (assoc db :active-panel panel-name)))
-
-(re-frame/reg-event-db
- ::initial-values-set
- (fn [db _]
-   (assoc db :initial-values-set true)))
+ ::get-articles-success
+ (fn [db [_ result]]
+   (as-> (:body result) $
+     (.parse js/JSON $)
+     (js->clj $ :keywordize-keys true)
+     (assoc db :articles $))))
 
 (re-frame/reg-event-fx
  ::get-article-by-id-success
@@ -34,30 +32,32 @@
       ::effects/set-quill-contents (:articles/markdown article)})))
 
 (re-frame/reg-event-fx
- ::get-article-by-id
- (fn [_ [_ id]]
-   {:fx [[:fetch {:method :get
-                  :url (str "http://localhost:3001/api/article/" id)
-                  :mode :cors
-                  :credentials :omit
-                  :on-success [::get-article-by-id-success]}]]}))
-
-(re-frame/reg-event-db
- ::get-articles-success
- (fn [db [_ result]]
-   (as-> (:body result) $
-     (.parse js/JSON $)
-     (js->clj $ :keywordize-keys true)
-     (assoc db :articles $))))
-
-(re-frame/reg-event-fx
- ::get-articles
- (fn [_ _]
-   {:fx [[:fetch {:method :get
+ ::set-active-panel
+ (fn [{db :db} [_ panel-name {:keys [id]}]]
+   (let [set-page (assoc db :active-panel panel-name)
+         get-articles-effect
+         [:fetch {:method :get
                   :url "http://localhost:3001/api/article"
                   :mode :cors
                   :credentials :omit
-                  :on-success [::get-articles-success]}]]}))
+                  :on-success [::get-articles-success]}]
+         get-article-by-id-effect
+         [:fetch {:method :get
+                  :url (str "http://localhost:3001/api/article/" id)
+                  :mode :cors
+                  :credentials :omit
+                  :on-success [::get-article-by-id-success]}]]
+     (case panel-name
+       :dashboard-panel {:db set-page
+                         :fx [get-articles-effect]}
+       :upload-article-panel {:db set-page}
+       :edit-article-panel {:db set-page
+                            :fx [get-article-by-id-effect]}))))
+
+(re-frame/reg-event-db
+ ::initial-values-set
+ (fn [db _]
+   (assoc db :initial-values-set true)))
 
 (re-frame/reg-event-db
  ::upload-success

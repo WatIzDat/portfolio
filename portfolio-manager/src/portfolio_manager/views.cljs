@@ -1,6 +1,5 @@
 (ns portfolio-manager.views
   (:require ["quill$default" :as quill]
-            [clojure.string :as string]
             [fork.re-frame :as fork]
             [portfolio-manager.consts :as consts]
             [portfolio-manager.events :as events]
@@ -10,45 +9,35 @@
 
 (defn dashboard-panel []
   (fn []
-    (reagent/create-class
-     {:component-did-mount #(re-frame/dispatch [::events/get-articles])
-      :display-name "Dashboard"
-      :reagent-render
-      (fn []
-        [:div.flex.justify-center.items-center.h-screen
-         [:div.flex.flex-col.justify-center.items-center {:class "size-1/3"}
-          [:div.flex.flex-row.w-full.items-end
-           [:h1.w-full.text-2xl "Articles"]
-           [:button.bg-blue-500.text-white.px-4.py-2.rounded-lg.w-72
-            {:on-click
-             #(set! (.. js/window -location -href) "/article")}
-            "Create New"]]
+    [:div.flex.justify-center.items-center.h-screen
+     [:div.flex.flex-col.justify-center.items-center {:class "size-1/3"}
+      [:div.flex.flex-row.w-full.items-end
+       [:h1.w-full.text-2xl "Articles"]
+       [:button.bg-blue-500.text-white.px-4.py-2.rounded-lg.w-72
+        {:on-click
+         #(set! (.. js/window -location -href) "/article")}
+        "Create New"]]
 
-          [:div.flex.flex-col.mt-4.bg-gray-300.size-full.rounded-3xl.p-4
-           [:ul.flex.flex-col.gap-4.overflow-y-auto
-            (map
-             (fn [article]
-               [:li {:key (article :articles/id)}
-                [:button.flex.bg-gray-500.rounded-lg.p-2.text-white.size-full
-                 {:on-click
-                  #(set! (.. js/window -location -href) (str "/article/" (article :articles/id)))}
-                 [:div.flex-grow
-                  [:h2.text-lg (article :articles/name)]
-                  [:p (article :articles/id)]]
-                 [:p (str (article :articles/project_completion) "%")]]])
-             @(re-frame/subscribe [::subs/articles]))]]]])})))
+      [:div.flex.flex-col.mt-4.bg-gray-300.size-full.rounded-3xl.p-4
+       [:ul.flex.flex-col.gap-4.overflow-y-auto
+        (map
+         (fn [article]
+           [:li {:key (article :articles/id)}
+            [:button.flex.bg-gray-500.rounded-lg.p-2.text-white.size-full
+             {:on-click
+              #(set! (.. js/window -location -href) (str "/article/" (article :articles/id)))}
+             [:div.flex-grow
+              [:h2.text-lg (article :articles/name)]
+              [:p (article :articles/id)]]
+             [:p (str (article :articles/project_completion) "%")]]])
+         @(re-frame/subscribe [::subs/articles]))]]]]))
 
 (defn article-panel [edit?]
   (fn []
     (reagent/create-class
      {:component-did-mount
       (fn []
-        (new quill consts/editor-id (js-obj "theme" "snow"))
-        (when edit?
-          (re-frame/dispatch
-           [::events/get-article-by-id (-> (.. js/window -location -pathname)
-                                           (string/split #"/")
-                                           (last))])))
+        (new quill consts/editor-id (js-obj "theme" "snow")))
       :display-name (if edit? "Edit Article Panel" "Upload Article Panel")
       :reagent-render
       (fn []

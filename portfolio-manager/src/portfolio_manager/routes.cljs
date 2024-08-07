@@ -13,7 +13,8 @@
 
 (defn- dispatch-route [matched-route]
   (let [panel-name (keyword (str (name (:handler matched-route)) "-panel"))]
-    (re-frame/dispatch [::events/set-active-panel panel-name])))
+    (println (:route-params matched-route))
+    (re-frame/dispatch [::events/set-active-panel panel-name (:route-params matched-route)])))
 
 (defn app-routes []
   (pushy/start! (pushy/pushy dispatch-route parse-url)))
