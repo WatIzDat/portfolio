@@ -12,8 +12,8 @@
 
 (s/defschema GetAllNoMarkdownResponse (dissoc Article :markdown))
 
-(s/defschema GetOnlyMarkdownByIdRequest {:id (:id Article)})
-(s/defschema GetOnlyMarkdownByIdResponse {:body (:markdown Article)})
+(s/defschema GetByIdRequest {:id (:id Article)})
+(s/defschema GetByIdResponse (dissoc Article :id))
 
 (s/defschema DeleteArticleCommand {:id (:id Article)})
 

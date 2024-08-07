@@ -44,10 +44,11 @@
      {:component-did-mount
       (fn []
         (new quill consts/editor-id (js-obj "theme" "snow"))
-        (re-frame/dispatch
-         [::events/get-article-by-id (-> (.. js/window -location -pathname)
-                                         (string/split #"/")
-                                         (last))]))
+        (when edit?
+          (re-frame/dispatch
+           [::events/get-article-by-id (-> (.. js/window -location -pathname)
+                                           (string/split #"/")
+                                           (last))])))
       :display-name (if edit? "Edit Article Panel" "Upload Article Panel")
       :reagent-render
       (fn []
@@ -65,6 +66,14 @@
                         submitting?
                         handle-submit
                         set-values]}]
+             (let [initial-values-set @(re-frame/subscribe [::subs/initial-values-set])
+                   name @(re-frame/subscribe [::subs/initial-name])
+                   project-completion @(re-frame/subscribe [::subs/initial-project-completion])]
+               (when (and (not initial-values-set) (not (nil? name)))
+                 (set-values {"name" name
+                              "project-completion" project-completion})
+                 (re-frame/dispatch [::events/initial-values-set])))
+
              [:form.flex.flex-col.size-full
               {:id form-id
                :on-submit handle-submit}

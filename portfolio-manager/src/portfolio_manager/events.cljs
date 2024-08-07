@@ -17,11 +17,20 @@
  (fn [db [_ panel-name]]
    (assoc db :active-panel panel-name)))
 
+(re-frame/reg-event-db
+ ::initial-values-set
+ (fn [db _]
+   (assoc db :initial-values-set true)))
+
 (re-frame/reg-event-fx
  ::get-article-by-id-success
- (fn [_ [_ result]]
+ (fn [{db :db} [_ result]]
    (println (:body result))
-   {::effects/set-quill-contents (:body result)}))
+   (let [article (js->clj (.parse js/JSON (:body result)) :keywordize-keys true)]
+     {:db (assoc db
+                 :initial-name (:articles/name article)
+                 :initial-project-completion (:articles/project_completion article))
+      ::effects/set-quill-contents (:articles/markdown article)})))
 
 (re-frame/reg-event-fx
  ::get-article-by-id

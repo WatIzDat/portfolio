@@ -9,9 +9,9 @@
                :responses {200 spec/CreateArticleResponse}}
         :get {:handler handler/get-all-no-markdown
               :responses {200 spec/GetAllNoMarkdownResponse}}}]
-   ["/:id" {:get {:handler handler/get-only-markdown-by-id
-                  :parameters {:path spec/GetOnlyMarkdownByIdRequest}
-                  :responses {200 spec/GetOnlyMarkdownByIdResponse}}
+   ["/:id" {:get {:handler handler/get-by-id
+                  :parameters {:path spec/GetByIdRequest}
+                  :responses {200 spec/GetByIdResponse}}
             :delete {:handler handler/delete
                      :parameters {:path spec/DeleteArticleCommand}
                      :responses {204 nil}}

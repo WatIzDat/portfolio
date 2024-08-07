@@ -21,13 +21,13 @@
           (sql/format {:select [:id :name :project-completion]
                        :from [:articles]}))})
 
-(defn get-only-markdown-by-id [{{{:keys [id]} :path} :parameters}]
+(defn get-by-id [{{{:keys [id]} :path} :parameters}]
   {:status 200
-   :body (:articles/markdown (jdbc/execute-one!
-                              db
-                              (sql/format {:select [:markdown]
-                                           :from [:articles]
-                                           :where [:= :id id]})))})
+   :body (jdbc/execute-one!
+          db
+          (sql/format {:select [:name :markdown :project-completion]
+                       :from [:articles]
+                       :where [:= :id id]}))})
 
 (defn delete [{{{:keys [id]} :path} :parameters}]
   (jdbc/execute!
@@ -57,4 +57,9 @@
                       :name "def"
                       :markdown "ghi"
                       :project-completion 9}
-                :where [:= :id "testtest"]})))
+                :where [:= :id "testtest"]}))
+  (jdbc/execute!
+   db
+   (sql/format {:select [:name :markdown :project-completion]
+                :from [:articles]
+                :where [:= :id "does-this-work"]})))

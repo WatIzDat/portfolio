@@ -8,4 +8,4 @@
  (fn [contents]
    (let [editor (.querySelector js/document consts/editor-id)
          delta (.parse js/JSON contents)]
-     (.setContents (.find quill editor) delta))))
+     (.setContents (quill/find editor) delta))))
