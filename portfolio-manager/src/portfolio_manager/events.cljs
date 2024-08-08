@@ -118,3 +118,16 @@
                           :mode :cors
                           :credentials :omit
                           :on-success [::edit-success path]}]])))})))
+
+(re-frame/reg-event-fx
+ ::article-form-changed
+ (fn [_ [_ name value edit?]]
+   {:fx [[::effects/set-local-storage
+          {:id (if edit?
+                 (-> (.. js/window -location -pathname)
+                     (string/split #"/")
+                     (last))
+                 (if (= name :id)
+                   value
+                   "new-article"))
+           :kv {name value}}]]}))

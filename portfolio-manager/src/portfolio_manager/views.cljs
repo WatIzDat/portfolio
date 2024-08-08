@@ -37,7 +37,11 @@
     (reagent/create-class
      {:component-did-mount
       (fn []
-        (new quill consts/editor-id (js-obj "theme" "snow")))
+        (let [quill (new quill consts/editor-id (js-obj "theme" "snow"))]
+          (.on quill "text-change"
+               (fn [_ _ _]
+                 (println "contents changed")
+                 (re-frame/dispatch [::events/article-form-changed :markdown (.getContents quill)])))))
       :display-name (if edit? "Edit Article Panel" "Upload Article Panel")
       :reagent-render
       (fn []
@@ -63,51 +67,57 @@
                               "project-completion" project-completion})
                  (re-frame/dispatch [::events/initial-values-set])))
 
-             [:form.flex.flex-col.size-full
-              {:id form-id
-               :on-submit handle-submit}
-              [:div.flex
-               (when (not edit?)
+             (let [custom-handle-change
+                   (fn [name]
+                     (fn [evt]
+                       (println evt)
+                       (handle-change evt)
+                       (re-frame/dispatch [::events/article-form-changed name (fork/retrieve-event-value evt)])))]
+               [:form.flex.flex-col.size-full
+                {:id form-id
+                 :on-submit handle-submit}
+                [:div.flex
+                 (when (not edit?)
+                   [:div.flex.flex-col.mr-4
+                    [:label {:for "id"} "ID:"]
+                    [:input.border.rounded-lg.border-gray-400.mb-4
+                     {:type "text"
+                      :name "id"
+                      :id "id"
+                      :on-change (custom-handle-change :id)
+                      :on-blur handle-blur
+                      :value (values "id")}]])
                  [:div.flex.flex-col.mr-4
-                  [:label {:for "id"} "ID:"]
+                  [:label {:for "name"} "Name:"]
                   [:input.border.rounded-lg.border-gray-400.mb-4
                    {:type "text"
-                    :name "id"
-                    :id "id"
-                    :on-change handle-change
+                    :name "name"
+                    :id "name"
+                    :on-change (custom-handle-change :name)
                     :on-blur handle-blur
-                    :value (values "id")}]])
-               [:div.flex.flex-col.mr-4
-                [:label {:for "name"} "Name:"]
-                [:input.border.rounded-lg.border-gray-400.mb-4
-                 {:type "text"
-                  :name "name"
-                  :id "name"
-                  :on-change handle-change
-                  :on-blur handle-blur
-                  :value (values "name")}]]
-               [:div.flex.flex-col
-                [:label {:for "project-completion"} "Project Completion (%):"]
-                [:input.border.rounded-lg.border-gray-400.mb-4
-                 {:type "text"
-                  :name "project-completion"
-                  :id "project-completion"
-                  :on-change handle-change
-                  :on-blur handle-blur
-                  :value (values "project-completion")}]]]
-              [:div {:class "size-full" :id "editor"}]
-              [:div.flex.flex-row-reverse
-               [:button.bg-blue-500.text-white.px-4.py-2.rounded-lg.mt-4
-                {:type "submit"
-                 :on-click #(set-values {"is-delete" false})
-                 :disabled submitting?}
-                (if edit? "Save" "Upload")]
-               (when edit?
-                 [:button.bg-red-500.text-white.px-4.py-2.rounded-lg.mt-4.mr-4
+                    :value (values "name")}]]
+                 [:div.flex.flex-col
+                  [:label {:for "project-completion"} "Project Completion (%):"]
+                  [:input.border.rounded-lg.border-gray-400.mb-4
+                   {:type "text"
+                    :name "project-completion"
+                    :id "project-completion"
+                    :on-change (custom-handle-change :project-completion)
+                    :on-blur handle-blur
+                    :value (values "project-completion")}]]]
+                [:div {:class "size-full" :id "editor"}]
+                [:div.flex.flex-row-reverse
+                 [:button.bg-blue-500.text-white.px-4.py-2.rounded-lg.mt-4
                   {:type "submit"
-                   :on-click #(set-values {"is-delete" true})
+                   :on-click #(set-values {"is-delete" false})
                    :disabled submitting?}
-                  "Delete"])]])]]])})))
+                  (if edit? "Save" "Upload")]
+                 (when edit?
+                   [:button.bg-red-500.text-white.px-4.py-2.rounded-lg.mt-4.mr-4
+                    {:type "submit"
+                     :on-click #(set-values {"is-delete" true})
+                     :disabled submitting?}
+                    "Delete"])]]))]]])})))
 
 (defmulti panels identity)
 (defmethod panels :dashboard-panel [] [dashboard-panel])
