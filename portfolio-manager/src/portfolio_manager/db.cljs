@@ -16,3 +16,6 @@
                      :project-completion (or (:project-completion map) (:project-completion article))}]
 
     (.setItem js/localStorage ls-key (.stringify js/JSON (clj->js new-article)))))
+
+(defn get-article-from-local-storage [id]
+  (js->clj (.parse js/JSON (.getItem js/localStorage (str local-storage-key local-storage-separator id))) :keywordize-keys true))

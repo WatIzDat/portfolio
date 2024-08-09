@@ -41,7 +41,7 @@
           (.on quill "text-change"
                (fn [_ _ _]
                  (println "contents changed")
-                 (re-frame/dispatch [::events/article-form-changed :markdown (.getContents quill)])))))
+                 (re-frame/dispatch [::events/article-form-changed :markdown (.getContents quill) edit?])))))
       :display-name (if edit? "Edit Article Panel" "Upload Article Panel")
       :reagent-render
       (fn []
@@ -72,7 +72,7 @@
                      (fn [evt]
                        (println evt)
                        (handle-change evt)
-                       (re-frame/dispatch [::events/article-form-changed name (fork/retrieve-event-value evt)])))]
+                       (re-frame/dispatch [::events/article-form-changed name (fork/retrieve-event-value evt) edit?])))]
                [:form.flex.flex-col.size-full
                 {:id form-id
                  :on-submit handle-submit}

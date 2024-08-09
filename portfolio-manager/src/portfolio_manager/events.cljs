@@ -26,10 +26,11 @@
  (fn [{db :db} [_ result]]
    (println (:body result))
    (let [article (js->clj (.parse js/JSON (:body result)) :keywordize-keys true)]
+     (println "2nd")
      {:db (assoc db
-                 :initial-name (:articles/name article)
-                 :initial-project-completion (:articles/project_completion article))
-      ::effects/set-quill-contents (:articles/markdown article)})))
+                 :initial-name (or (:articles/name article) (:initial-name db))
+                 :initial-project-completion (or (:articles/project_completion article) (:initial-project-completion db)))
+      ::effects/set-quill-contents (or (.stringify js/JSON (clj->js (:initial-markdown db))) (:articles/markdown article))})))
 
 (re-frame/reg-event-fx
  ::set-active-panel
@@ -46,12 +47,20 @@
                   :url (str "http://localhost:3001/api/article/" id)
                   :mode :cors
                   :credentials :omit
-                  :on-success [::get-article-by-id-success]}]]
+                  :on-success [::get-article-by-id-success]}]
+         article-from-local-storage (db/get-article-from-local-storage id)]
+
      (case panel-name
        :dashboard-panel {:db set-page
                          :fx [get-articles-effect]}
        :upload-article-panel {:db set-page}
-       :edit-article-panel {:db set-page
+       :edit-article-panel {:db (merge (assoc set-page :initial-id id :initial-markdown (:markdown article-from-local-storage))
+                                       (into {}
+                                             (map
+                                              #(first {(keyword (str "initial-" (apply str (rest (str (key %)))))) (val %)})
+                                              (filter
+                                               (complement nil?)
+                                               article-from-local-storage))))
                             :fx [get-article-by-id-effect]}))))
 
 (re-frame/reg-event-db
@@ -121,13 +130,10 @@
 
 (re-frame/reg-event-fx
  ::article-form-changed
- (fn [_ [_ name value edit?]]
-   {:fx [[::effects/set-local-storage
+ (fn [{db :db} [_ name value edit?]]
+   (println edit?)
+   {:fx [[::effects/set-article-local-storage
           {:id (if edit?
-                 (-> (.. js/window -location -pathname)
-                     (string/split #"/")
-                     (last))
-                 (if (= name :id)
-                   value
-                   "new-article"))
+                 (:initial-id db)
+                 "new-article")
            :kv {name value}}]]}))

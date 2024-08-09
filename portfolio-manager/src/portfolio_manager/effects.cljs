@@ -9,10 +9,11 @@
  (fn [contents]
    (let [editor (.querySelector js/document consts/editor-id)
          delta (.parse js/JSON contents)]
+     (println delta)
      (.setContents (quill/find editor) delta))))
 
 (re-frame/reg-fx
- ::set-local-storage
+ ::set-article-local-storage
  (fn [map]
    (println (:kv map))
    (db/set-article-local-storage (:id map) (:kv map))))
