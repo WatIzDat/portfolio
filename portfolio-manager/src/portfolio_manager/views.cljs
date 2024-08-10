@@ -8,29 +8,64 @@
             [reagent.core :as reagent]))
 
 (defn dashboard-panel []
-  (fn []
-    [:div.flex.justify-center.items-center.h-screen
-     [:div.flex.flex-col.justify-center.items-center {:class "size-1/3"}
-      [:div.flex.flex-row.w-full.items-end
-       [:h1.w-full.text-2xl "Articles"]
-       [:button.bg-blue-500.text-white.px-4.py-2.rounded-lg.w-72
-        {:on-click
-         #(set! (.. js/window -location -href) "/article")}
-        "Create New"]]
+  (let [modal-open (reagent/atom false)]
+    (fn []
+      [:div.flex.justify-center.items-center.h-screen
+       (when @modal-open
+         [:div.size-full.absolute.flex.justify-center.items-center.h-screen.backdrop-blur-md
+          [:div.bg-gray-700.text-white.rounded-2xl.flex.flex-col.items-center {:class "size-1/5"}
+           [:h1.text-2xl.mt-4 "Create New Article"]
+           [fork/form {:path [:modal]
+                       :form-id "modal"
+                       :prevent-default? true
+                       :clean-on-unmount? true
+                       :on-submit #(reset! modal-open false)}
+            (fn [{:keys [values
+                         form-id
+                         handle-change
+                         handle-blur
+                         submitting?
+                         handle-submit]}]
+              [:form.flex.flex-col.items-center
+               {:id form-id
+                :on-submit handle-submit}
+               [:label.text-xl.mt-8 {:for "id"} "Please enter the ID of your new article:"]
+               [:input.border.rounded-lg.border-gray-400.mb-4.bg-gray-900.mt-4.h-8.w-full
+                {:type "text"
+                 :name "id"
+                 :id "id"
+                 :on-change handle-change
+                 :on-blur handle-blur
+                 :value (values "id")}]
+               [:button.bg-blue-500.text-white.px-4.py-2.rounded-lg.mt-4
+                {:type "submit"
+                 :disabled submitting?}
+                "Continue"]])]]])
 
-      [:div.flex.flex-col.mt-4.bg-gray-300.size-full.rounded-3xl.p-4
-       [:ul.flex.flex-col.gap-4.overflow-y-auto
-        (map
-         (fn [article]
-           [:li {:key (article :articles/id)}
-            [:button.flex.bg-gray-500.rounded-lg.p-2.text-white.size-full
-             {:on-click
-              #(set! (.. js/window -location -href) (str "/article/" (article :articles/id)))}
-             [:div.flex-grow
-              [:h2.text-lg (article :articles/name)]
-              [:p (article :articles/id)]]
-             [:p (str (article :articles/project_completion) "%")]]])
-         @(re-frame/subscribe [::subs/articles]))]]]]))
+       [:div.flex.flex-col.justify-center.items-center {:class "size-1/3" :inert (when @modal-open "")}
+        [:div.flex.flex-row.w-full.items-end
+         [:h1.w-full.text-2xl "Articles"]
+         [:button.bg-blue-500.text-white.px-4.py-2.rounded-lg.w-72
+          {:on-click
+           (fn []
+             (println "test")
+             (reset! modal-open true)
+             (println @modal-open))}
+          "Create New"]]
+
+        [:div.flex.flex-col.mt-4.bg-gray-300.size-full.rounded-3xl.p-4
+         [:ul.flex.flex-col.gap-4.overflow-y-auto
+          (map
+           (fn [article]
+             [:li {:key (article :articles/id)}
+              [:button.flex.bg-gray-500.rounded-lg.p-2.text-white.size-full
+               {:on-click
+                #(set! (.. js/window -location -href) (str "/article/" (article :articles/id)))}
+               [:div.flex-grow
+                [:h2.text-lg (article :articles/name)]
+                [:p (article :articles/id)]]
+               [:p (str (article :articles/project_completion) "%")]]])
+           @(re-frame/subscribe [::subs/articles]))]]]])))
 
 (defn article-panel [edit?]
   (fn []

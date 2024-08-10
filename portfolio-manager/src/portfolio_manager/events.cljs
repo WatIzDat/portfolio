@@ -27,10 +27,14 @@
    (println (:body result))
    (let [article (js->clj (.parse js/JSON (:body result)) :keywordize-keys true)]
      (println "2nd")
+     (println (:articles/markdown article))
      {:db (assoc db
                  :initial-name (or (:articles/name article) (:initial-name db))
                  :initial-project-completion (or (:articles/project_completion article) (:initial-project-completion db)))
-      ::effects/set-quill-contents (or (.stringify js/JSON (clj->js (:initial-markdown db))) (:articles/markdown article))})))
+      ::effects/set-quill-contents
+      (if (nil? (:initial-markdown db))
+        (:articles/markdown article)
+        (.stringify js/JSON (clj->js (:initial-markdown db))))})))
 
 (re-frame/reg-event-fx
  ::set-active-panel
@@ -49,7 +53,7 @@
                   :credentials :omit
                   :on-success [::get-article-by-id-success]}]
          article-from-local-storage (db/get-article-from-local-storage id)]
-
+     (println (:markdown article-from-local-storage))
      (case panel-name
        :dashboard-panel {:db set-page
                          :fx [get-articles-effect]}
