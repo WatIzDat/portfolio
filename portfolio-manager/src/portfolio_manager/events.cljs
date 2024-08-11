@@ -91,53 +91,53 @@
    (fork/set-submitting db path false)))
 
 (re-frame/reg-event-fx
+ ::upload
+ (fn [_ [_ {:keys [values path]}]]
+   {:fx [[:fetch {:method :post
+                  :url "http://localhost:3001/api/article"
+                  :request-content-type :json
+                  :headers {"Accept" "application/json"
+                            "Origin" "http://localhost:8280"}
+                  :body {:id (values "id")
+                         :name "New Article"
+                         :markdown nil
+                         :project-completion 0}
+                  :mode :cors
+                  :credentials :omit
+                  :on-success [::upload-success path]}]]}))
+
+(re-frame/reg-event-fx
  ::article-form-submit
- (fn [{db :db} [_ {:keys [values _ path]} edit?]]
+ (fn [{db :db} [_ {:keys [values path]}]]
    (let [editor (.querySelector js/document consts/editor-id)
          delta (js->clj (.stringify js/JSON (.getContents (q/find editor))))]
      (println (values "id"))
      {:db (fork/set-submitting db path true)
-      :fx (if (not edit?)
-            [[:fetch {:method :post
-                      :url "http://localhost:3001/api/article"
-                      :request-content-type :json
-                      :headers {"Accept" "application/json"
-                                "Origin" "http://localhost:8280"}
-                      :body {:id (values "id")
-                             :name (values "name")
-                             :markdown delta
-                             :project-completion (parse-long (values "project-completion"))}
-                      :mode :cors
-                      :credentials :omit
-                      :on-success [::upload-success path]}]]
-            (let [id (-> (.. js/window -location -pathname)
-                         (string/split #"/")
-                         (last))]
-              (if (values "is-delete")
-                [[:fetch {:method :delete
-                          :url (str "http://localhost:3001/api/article/" id)
-                          :mode :cors
-                          :credentials :omit
-                          :on-success [::delete-success path]}]]
-                [[:fetch {:method :put
-                          :url (str "http://localhost:3001/api/article/" id)
-                          :request-content-type :json
-                          :headers {"Accept" "application/json"
-                                    "Origin" "http://localhost:8280"}
-                          :body {:id id
-                                 :name (values "name")
-                                 :markdown delta
-                                 :project-completion (parse-long (str (values "project-completion")))}
-                          :mode :cors
-                          :credentials :omit
-                          :on-success [::edit-success path]}]])))})))
+      :fx (let [id (-> (.. js/window -location -pathname)
+                       (string/split #"/")
+                       (last))]
+            (if (values "is-delete")
+              [[:fetch {:method :delete
+                        :url (str "http://localhost:3001/api/article/" id)
+                        :mode :cors
+                        :credentials :omit
+                        :on-success [::delete-success path]}]]
+              [[:fetch {:method :put
+                        :url (str "http://localhost:3001/api/article/" id)
+                        :request-content-type :json
+                        :headers {"Accept" "application/json"
+                                  "Origin" "http://localhost:8280"}
+                        :body {:id id
+                               :name (values "name")
+                               :markdown delta
+                               :project-completion (parse-long (str (values "project-completion")))}
+                        :mode :cors
+                        :credentials :omit
+                        :on-success [::edit-success path]}]]))})))
 
 (re-frame/reg-event-fx
  ::article-form-changed
- (fn [{db :db} [_ name value edit?]]
-   (println edit?)
+ (fn [{db :db} [_ name value]]
    {:fx [[::effects/set-article-local-storage
-          {:id (if edit?
-                 (:initial-id db)
-                 "new-article")
+          {:id (:initial-id db)
            :kv {name value}}]]}))

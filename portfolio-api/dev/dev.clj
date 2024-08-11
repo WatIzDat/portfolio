@@ -1,6 +1,8 @@
 (ns dev
   (:require [mount.core :as mount]
-            [clojure.tools.namespace.repl :as tn]))
+            [clojure.tools.namespace.repl :as tn]
+            [ragtime.jdbc :as ragtime]
+            [portfolio-api.db :as db]))
 
 (defn start []
   (mount/start))
@@ -37,3 +39,7 @@
   (set! *data-readers* (.getRawRoot #'*data-readers*)))
 
 (load-data-readers!)
+
+(def ragtime-config
+  {:datastore (ragtime/sql-database db/db-spec)
+   :migrations (ragtime/load-resources "migrations")})

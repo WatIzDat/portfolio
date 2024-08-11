@@ -4,7 +4,7 @@
 (s/defschema Article
   {:id s/Str
    :name s/Str
-   :markdown s/Str
+   :markdown (s/maybe s/Str)
    :project-completion (s/constrained s/Int (fn less-than-100? [x] (<= x 100)))})
 
 (s/defschema CreateArticleCommand Article)

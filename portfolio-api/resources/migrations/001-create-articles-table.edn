@@ -1,0 +1,7 @@
+{:up ["CREATE TABLE articles (
+        id text PRIMARY KEY,
+        name text NOT NULL,
+        markdown text,
+        project_completion int NOT NULL
+       );"]
+ :down ["DROP TABLE articles;"]}

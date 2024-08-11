@@ -3,10 +3,10 @@
             [mount.core :as mount])
   (:import (com.mchange.v2.c3p0 ComboPooledDataSource)))
 
-(def ^:private db-spec {:dbtype "postgresql"
-                        :dbname "portfolio"
-                        :user "postgres"
-                        :password "password"})
+(def db-spec {:dbtype "postgresql"
+              :dbname "portfolio"
+              :user "postgres"
+              :password "password"})
 
 (mount/defstate db
   :start (connection/->pool ComboPooledDataSource db-spec)
