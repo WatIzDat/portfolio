@@ -72,7 +72,9 @@
                [:div.flex-grow
                 [:h2.text-lg (article :articles/name)]
                 [:p (article :articles/id)]]
-               [:p (str (article :articles/project_completion) "%")]]])
+               [:div.flex.flex-col.gap-1.items-end.size-4
+                [:p (str (article :articles/project_completion) "%")]
+                [:p (if (article :articles/listed) "Listed" "Unlisted")]]]])
            @(re-frame/subscribe [::subs/articles]))]]]])))
 
 (defn article-panel []
@@ -109,7 +111,8 @@
               (let [initial-values-set @(re-frame/subscribe [::subs/initial-values-set])
                     name @(re-frame/subscribe [::subs/initial-name])
                     project-completion @(re-frame/subscribe [::subs/initial-project-completion])]
-                (when (and (not initial-values-set) (not (nil? name)))
+                (when (and (not initial-values-set) (not (nil? name)) (not (nil? project-completion)))
+                  (println project-completion)
                   (set-values {"name" name
                                "project-completion" project-completion})
                   (re-frame/dispatch [::events/initial-values-set])))
@@ -119,7 +122,8 @@
                       (fn [evt]
                         (println evt)
                         (handle-change evt)
-                        (re-frame/dispatch [::events/article-form-changed name (fork/retrieve-event-value evt)])))]
+                        (re-frame/dispatch [::events/article-form-changed name (fork/retrieve-event-value evt)])))
+                    listed @(re-frame/subscribe [::subs/listed])]
                 [:form.flex.flex-col.size-full
                  {:id form-id
                   :on-submit handle-submit}
@@ -146,12 +150,18 @@
                  [:div.flex.flex-row-reverse
                   [:button.bg-blue-500.text-white.px-4.py-2.rounded-lg.mt-4
                    {:type "submit"
-                    :on-click #(set-values {"is-delete" false})
+                    :on-click #(set-values {"submit-type" :upload})
                     :disabled submitting?}
-                   "Save"]
+                   (if listed "Edit" "Upload")]
+                  (when listed
+                    [:button.bg-blue-500.text-white.px-4.py-2.rounded-lg.mt-4.mr-4
+                     {:type "submit"
+                      :on-click #(set-values {"submit-type" :de-list})
+                      :disabled submitting?}
+                     "De-list"])
                   [:button.bg-red-500.text-white.px-4.py-2.rounded-lg.mt-4.mr-4
                    {:type "submit"
-                    :on-click #(set-values {"is-delete" true})
+                    :on-click #(set-values {"submit-type" :delete})
                     :disabled submitting?}
                    "Delete"]]]))]]]])})))
 

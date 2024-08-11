@@ -27,10 +27,11 @@
    (println (:body result))
    (let [article (js->clj (.parse js/JSON (:body result)) :keywordize-keys true)]
      (println "2nd")
-     (println (:articles/markdown article))
+     (println (:articles/project_completion article))
      {:db (assoc db
                  :initial-name (or (:articles/name article) (:initial-name db))
-                 :initial-project-completion (or (:articles/project_completion article) (:initial-project-completion db)))
+                 :initial-project-completion (or (:articles/project_completion article) (:initial-project-completion article))
+                 :listed (:articles/listed article))
       ::effects/set-quill-contents
       (if (nil? (:initial-markdown db))
         (:articles/markdown article)
@@ -76,21 +77,21 @@
  ::upload-success
  (fn [db [_ path id]]
    (println "Success!")
-   (fork/set-submitting db path false)
-   (set! (.. js/window -location -href) (str "/article/" id))))
+   (set! (.. js/window -location -href) (str "/article/" id))
+   (fork/set-submitting db path false)))
 
 (re-frame/reg-event-db
  ::edit-success
- (fn [db [_ path]]
+ (fn [db [_ path listed]]
    (println "edit success")
-   (fork/set-submitting db path false)))
+   (assoc (fork/set-submitting db path false) :listed listed)))
 
 (re-frame/reg-event-db
  ::delete-success
  (fn [db [_ path]]
    (println "delete success")
-   (fork/set-submitting db path false)
-   (set! (.. js/window -location -href) "/")))
+   (set! (.. js/window -location -href) "/")
+   (fork/set-submitting db path false)))
 
 (re-frame/reg-event-fx
  ::upload
@@ -103,7 +104,8 @@
                   :body {:id (values "id")
                          :name "New Article"
                          :markdown nil
-                         :project-completion 0}
+                         :project-completion 0
+                         :listed false}
                   :mode :cors
                   :credentials :omit
                   :on-success [::upload-success path (values "id")]}]]}))
@@ -117,25 +119,38 @@
      {:db (fork/set-submitting db path true)
       :fx (let [id (-> (.. js/window -location -pathname)
                        (string/split #"/")
-                       (last))]
-            (if (values "is-delete")
+                       (last))
+                body {:id id
+                      :name (values "name")
+                      :markdown delta
+                      :project-completion (parse-long (str (values "project-completion")))}]
+            (case (values "submit-type")
+              :delete
               [[:fetch {:method :delete
                         :url (str "http://localhost:3001/api/article/" id)
                         :mode :cors
                         :credentials :omit
                         :on-success [::delete-success path]}]]
+              :de-list
               [[:fetch {:method :put
                         :url (str "http://localhost:3001/api/article/" id)
                         :request-content-type :json
                         :headers {"Accept" "application/json"
                                   "Origin" "http://localhost:8280"}
-                        :body {:id id
-                               :name (values "name")
-                               :markdown delta
-                               :project-completion (parse-long (str (values "project-completion")))}
+                        :body (assoc body :listed false)
                         :mode :cors
                         :credentials :omit
-                        :on-success [::edit-success path]}]]))})))
+                        :on-success [::edit-success path false]}]]
+              :upload
+              [[:fetch {:method :put
+                        :url (str "http://localhost:3001/api/article/" id)
+                        :request-content-type :json
+                        :headers {"Accept" "application/json"
+                                  "Origin" "http://localhost:8280"}
+                        :body (assoc body :listed true)
+                        :mode :cors
+                        :credentials :omit
+                        :on-success [::edit-success path true]}]]))})))
 
 (re-frame/reg-event-fx
  ::article-form-changed

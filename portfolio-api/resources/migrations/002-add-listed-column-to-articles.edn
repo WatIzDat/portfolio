@@ -1,0 +1,2 @@
+{:up ["ALTER TABLE articles ADD COLUMN listed boolean DEFAULT false NOT NULL;"]
+ :down ["ALTER TABLE articles DROP COLUMN listed;"]}

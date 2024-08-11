@@ -5,7 +5,8 @@
   {:id s/Str
    :name s/Str
    :markdown (s/maybe s/Str)
-   :project-completion (s/constrained s/Int (fn less-than-100? [x] (<= x 100)))})
+   :project-completion (s/constrained s/Int (fn less-than-100? [x] (<= x 100)))
+   :listed s/Bool})
 
 (s/defschema CreateArticleCommand Article)
 (s/defschema CreateArticleResponse {:body (:id Article)})

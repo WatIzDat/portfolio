@@ -26,3 +26,8 @@
  ::initial-values-set
  (fn [db _]
    (:initial-values-set db)))
+
+(re-frame/reg-sub
+ ::listed
+ (fn [db _]
+   (:listed db)))
