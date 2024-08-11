@@ -74,9 +74,10 @@
 
 (re-frame/reg-event-db
  ::upload-success
- (fn [db [_ path]]
+ (fn [db [_ path id]]
    (println "Success!")
-   (fork/set-submitting db path false)))
+   (fork/set-submitting db path false)
+   (set! (.. js/window -location -href) (str "/article/" id))))
 
 (re-frame/reg-event-db
  ::edit-success
@@ -88,7 +89,8 @@
  ::delete-success
  (fn [db [_ path]]
    (println "delete success")
-   (fork/set-submitting db path false)))
+   (fork/set-submitting db path false)
+   (set! (.. js/window -location -href) "/")))
 
 (re-frame/reg-event-fx
  ::upload
@@ -104,7 +106,7 @@
                          :project-completion 0}
                   :mode :cors
                   :credentials :omit
-                  :on-success [::upload-success path]}]]}))
+                  :on-success [::upload-success path (values "id")]}]]}))
 
 (re-frame/reg-event-fx
  ::article-form-submit

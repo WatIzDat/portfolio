@@ -13,6 +13,11 @@
       [:div.flex.justify-center.items-center.h-screen
        (when @modal-open
          [:div.size-full.absolute.flex.justify-center.items-center.h-screen.backdrop-blur-md
+          {:id "wrapper"
+           :on-mouse-down
+           #(let [id (.. % -target -id)]
+              (when (= id "wrapper")
+                (reset! modal-open false)))}
           [:div.bg-gray-700.text-white.rounded-2xl.flex.flex-col.items-center {:class "size-1/5"}
            [:h1.text-2xl.mt-4 "Create New Article"]
            [fork/form {:path [:modal]
@@ -83,68 +88,72 @@
       :display-name "Edit Article Panel"
       :reagent-render
       (fn []
-        [:div.flex.flex-col.justify-center.items-center.h-screen
-         [:div {:class "size-2/3 mb-24"}
-          [fork/form {:path [:form]
-                      :form-id "form"
-                      :prevent-default? true
-                      :clean-on-unmount? true
-                      :on-submit #(re-frame/dispatch [::events/article-form-submit %])}
-           (fn [{:keys [values
-                        form-id
-                        handle-change
-                        handle-blur
-                        submitting?
-                        handle-submit
-                        set-values]}]
-             (let [initial-values-set @(re-frame/subscribe [::subs/initial-values-set])
-                   name @(re-frame/subscribe [::subs/initial-name])
-                   project-completion @(re-frame/subscribe [::subs/initial-project-completion])]
-               (when (and (not initial-values-set) (not (nil? name)))
-                 (set-values {"name" name
-                              "project-completion" project-completion})
-                 (re-frame/dispatch [::events/initial-values-set])))
+        [:<>
+         [:button.fixed.size-16.text-5xl
+          {:on-click #(set! (.. js/window -location -href) "/")}
+          "<"]
+         [:div.flex.flex-col.justify-center.items-center.h-screen
+          [:div {:class "size-2/3 mb-24"}
+           [fork/form {:path [:form]
+                       :form-id "form"
+                       :prevent-default? true
+                       :clean-on-unmount? true
+                       :on-submit #(re-frame/dispatch [::events/article-form-submit %])}
+            (fn [{:keys [values
+                         form-id
+                         handle-change
+                         handle-blur
+                         submitting?
+                         handle-submit
+                         set-values]}]
+              (let [initial-values-set @(re-frame/subscribe [::subs/initial-values-set])
+                    name @(re-frame/subscribe [::subs/initial-name])
+                    project-completion @(re-frame/subscribe [::subs/initial-project-completion])]
+                (when (and (not initial-values-set) (not (nil? name)))
+                  (set-values {"name" name
+                               "project-completion" project-completion})
+                  (re-frame/dispatch [::events/initial-values-set])))
 
-             (let [custom-handle-change
-                   (fn [name]
-                     (fn [evt]
-                       (println evt)
-                       (handle-change evt)
-                       (re-frame/dispatch [::events/article-form-changed name (fork/retrieve-event-value evt)])))]
-               [:form.flex.flex-col.size-full
-                {:id form-id
-                 :on-submit handle-submit}
-                [:div.flex
-                 [:div.flex.flex-col.mr-4
-                  [:label {:for "name"} "Name:"]
-                  [:input.border.rounded-lg.border-gray-400.mb-4
-                   {:type "text"
-                    :name "name"
-                    :id "name"
-                    :on-change (custom-handle-change :name)
-                    :on-blur handle-blur
-                    :value (values "name")}]]
-                 [:div.flex.flex-col
-                  [:label {:for "project-completion"} "Project Completion (%):"]
-                  [:input.border.rounded-lg.border-gray-400.mb-4
-                   {:type "text"
-                    :name "project-completion"
-                    :id "project-completion"
-                    :on-change (custom-handle-change :project-completion)
-                    :on-blur handle-blur
-                    :value (values "project-completion")}]]]
-                [:div {:class "size-full" :id "editor"}]
-                [:div.flex.flex-row-reverse
-                 [:button.bg-blue-500.text-white.px-4.py-2.rounded-lg.mt-4
-                  {:type "submit"
-                   :on-click #(set-values {"is-delete" false})
-                   :disabled submitting?}
-                  "Save"]
-                 [:button.bg-red-500.text-white.px-4.py-2.rounded-lg.mt-4.mr-4
-                  {:type "submit"
-                   :on-click #(set-values {"is-delete" true})
-                   :disabled submitting?}
-                  "Delete"]]]))]]])})))
+              (let [custom-handle-change
+                    (fn [name]
+                      (fn [evt]
+                        (println evt)
+                        (handle-change evt)
+                        (re-frame/dispatch [::events/article-form-changed name (fork/retrieve-event-value evt)])))]
+                [:form.flex.flex-col.size-full
+                 {:id form-id
+                  :on-submit handle-submit}
+                 [:div.flex
+                  [:div.flex.flex-col.mr-4
+                   [:label {:for "name"} "Name:"]
+                   [:input.border.rounded-lg.border-gray-400.mb-4
+                    {:type "text"
+                     :name "name"
+                     :id "name"
+                     :on-change (custom-handle-change :name)
+                     :on-blur handle-blur
+                     :value (values "name")}]]
+                  [:div.flex.flex-col
+                   [:label {:for "project-completion"} "Project Completion (%):"]
+                   [:input.border.rounded-lg.border-gray-400.mb-4
+                    {:type "text"
+                     :name "project-completion"
+                     :id "project-completion"
+                     :on-change (custom-handle-change :project-completion)
+                     :on-blur handle-blur
+                     :value (values "project-completion")}]]]
+                 [:div {:class "size-full" :id "editor"}]
+                 [:div.flex.flex-row-reverse
+                  [:button.bg-blue-500.text-white.px-4.py-2.rounded-lg.mt-4
+                   {:type "submit"
+                    :on-click #(set-values {"is-delete" false})
+                    :disabled submitting?}
+                   "Save"]
+                  [:button.bg-red-500.text-white.px-4.py-2.rounded-lg.mt-4.mr-4
+                   {:type "submit"
+                    :on-click #(set-values {"is-delete" true})
+                    :disabled submitting?}
+                   "Delete"]]]))]]]])})))
 
 (defmulti panels identity)
 (defmethod panels :dashboard-panel [] [dashboard-panel])
