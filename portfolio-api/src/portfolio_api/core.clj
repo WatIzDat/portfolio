@@ -7,6 +7,7 @@
             [muuntaja.core :as m]
             [reitit.ring.middleware.muuntaja :as muuntaja]
             [reitit.ring.middleware.parameters :as parameters]
+            [reitit.ring.middleware.exception :as exception]
             [reitit.ring.coercion :as rrc]
             [next.jdbc :as jdbc]
             [portfolio-api.db :refer [db]]
@@ -15,21 +16,21 @@
 (def app
   (ring/ring-handler
    (ring/router
-    ["/api"
-     {:middleware [[cors/wrap-cors
-                    :access-control-allow-origin [#"http://localhost:8280"]
-                    :access-control-allow-methods [:get :post :put :delete]
-                    :access-control-allow-headers #{"accept"
-                                                    "accept-encoding"
-                                                    "accept-language"
-                                                    "authorization"
-                                                    "content-type"
-                                                    "origin"}]]}
-     (routes/article-routes)]
+    ["/api" (routes/article-routes)]
     {:data {:muuntaja m/instance
             :coercion reitit.coercion.schema/coercion
-            :middleware [muuntaja/format-middleware
+            :middleware [[cors/wrap-cors
+                          :access-control-allow-origin [#"http://localhost:8280"]
+                          :access-control-allow-methods [:get :post :put :delete]
+                          :access-control-allow-headers #{"accept"
+                                                          "accept-encoding"
+                                                          "accept-language"
+                                                          "authorization"
+                                                          "content-type"
+                                                          "origin"}]
+                         muuntaja/format-middleware
                          parameters/parameters-middleware
+                         exception/exception-middleware
                          rrc/coerce-exceptions-middleware
                          rrc/coerce-request-middleware
                          rrc/coerce-response-middleware]}})))

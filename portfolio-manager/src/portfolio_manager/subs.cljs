@@ -23,9 +23,9 @@
    (:initial-project-completion db)))
 
 (re-frame/reg-sub
- ::initial-values-set
+ ::initial-values-should-be-set
  (fn [db _]
-   (:initial-values-set db)))
+   (:initial-values-should-be-set db)))
 
 (re-frame/reg-sub
  ::listed

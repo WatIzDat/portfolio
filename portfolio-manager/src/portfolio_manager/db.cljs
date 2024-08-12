@@ -2,7 +2,7 @@
 
 (def default-db
   {:active-panel :dashboard-panel
-   :initial-values-set false})
+   :initial-values-should-be-set false})
 
 (def local-storage-key "portfolio-manager")
 (def local-storage-separator ":")

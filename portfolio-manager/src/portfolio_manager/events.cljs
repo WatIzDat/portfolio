@@ -29,9 +29,10 @@
      (println "2nd")
      (println (:articles/project_completion article))
      {:db (assoc db
-                 :initial-name (or (:articles/name article) (:initial-name db))
-                 :initial-project-completion (or (:articles/project_completion article) (:initial-project-completion article))
-                 :listed (:articles/listed article))
+                 :initial-name (or (:initial-name db) (:articles/name article))
+                 :initial-project-completion (or (:initial-project-completion db) (:articles/project_completion article))
+                 :listed (:articles/listed article)
+                 :initial-values-should-be-set true)
       ::effects/set-quill-contents
       (if (nil? (:initial-markdown db))
         (:articles/markdown article)
@@ -46,13 +47,15 @@
                   :url "http://localhost:3001/api/article"
                   :mode :cors
                   :credentials :omit
-                  :on-success [::get-articles-success]}]
+                  :on-success [::get-articles-success]
+                  :on-failure [::fetch-failure]}]
          get-article-by-id-effect
          [:fetch {:method :get
                   :url (str "http://localhost:3001/api/article/" id)
                   :mode :cors
                   :credentials :omit
-                  :on-success [::get-article-by-id-success]}]
+                  :on-success [::get-article-by-id-success]
+                  :on-failure [::fetch-failure]}]
          article-from-local-storage (db/get-article-from-local-storage id)]
      (println (:markdown article-from-local-storage))
      (case panel-name
@@ -71,7 +74,7 @@
 (re-frame/reg-event-db
  ::initial-values-set
  (fn [db _]
-   (assoc db :initial-values-set true)))
+   (assoc db :initial-values-should-be-set false)))
 
 (re-frame/reg-event-db
  ::upload-success
@@ -93,6 +96,15 @@
    (set! (.. js/window -location -href) "/")
    (fork/set-submitting db path false)))
 
+(re-frame/reg-event-db
+ ::fetch-failure
+ (fn [_ [_ problem]]
+   (println
+    (case (:status problem)
+      400 "There was a problem with your request"
+      404 "The requested resource was not found"
+      500 "There was an internal server error"))))
+
 (re-frame/reg-event-fx
  ::upload
  (fn [_ [_ {:keys [values path]}]]
@@ -108,7 +120,8 @@
                          :listed false}
                   :mode :cors
                   :credentials :omit
-                  :on-success [::upload-success path (values "id")]}]]}))
+                  :on-success [::upload-success path (values "id")]
+                  :on-failure [::fetch-failure]}]]}))
 
 (re-frame/reg-event-fx
  ::article-form-submit
@@ -130,7 +143,8 @@
                         :url (str "http://localhost:3001/api/article/" id)
                         :mode :cors
                         :credentials :omit
-                        :on-success [::delete-success path]}]]
+                        :on-success [::delete-success path]
+                        :on-failure [::fetch-failure]}]]
               :de-list
               [[:fetch {:method :put
                         :url (str "http://localhost:3001/api/article/" id)
@@ -140,7 +154,8 @@
                         :body (assoc body :listed false)
                         :mode :cors
                         :credentials :omit
-                        :on-success [::edit-success path false]}]]
+                        :on-success [::edit-success path false]
+                        :on-failure [::fetch-failure]}]]
               :upload
               [[:fetch {:method :put
                         :url (str "http://localhost:3001/api/article/" id)
@@ -150,7 +165,8 @@
                         :body (assoc body :listed true)
                         :mode :cors
                         :credentials :omit
-                        :on-success [::edit-success path true]}]]))})))
+                        :on-success [::edit-success path true]
+                        :on-failure [::fetch-failure]}]]))})))
 
 (re-frame/reg-event-fx
  ::article-form-changed

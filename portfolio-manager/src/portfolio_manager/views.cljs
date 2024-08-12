@@ -108,10 +108,10 @@
                          submitting?
                          handle-submit
                          set-values]}]
-              (let [initial-values-set @(re-frame/subscribe [::subs/initial-values-set])
+              (let [initial-values-should-be-set @(re-frame/subscribe [::subs/initial-values-should-be-set])
                     name @(re-frame/subscribe [::subs/initial-name])
                     project-completion @(re-frame/subscribe [::subs/initial-project-completion])]
-                (when (and (not initial-values-set) (not (nil? name)) (not (nil? project-completion)))
+                (when initial-values-should-be-set
                   (println project-completion)
                   (set-values {"name" name
                                "project-completion" project-completion})
