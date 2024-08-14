@@ -1,10 +1,10 @@
 (ns portfolio-api.core
   (:require [mount.core :as mount]
             [portfolio-api.routes :as routes]
-            [reitit.coercion.schema]
             [reitit.ring :as ring]
             [ring.adapter.jetty :as jetty]
             [muuntaja.core :as m]
+            [reitit.coercion.malli]
             [reitit.ring.middleware.muuntaja :as muuntaja]
             [reitit.ring.middleware.parameters :as parameters]
             [reitit.ring.middleware.exception :as exception]
@@ -18,7 +18,7 @@
    (ring/router
     ["/api" (routes/article-routes)]
     {:data {:muuntaja m/instance
-            :coercion reitit.coercion.schema/coercion
+            :coercion reitit.coercion.malli/coercion
             :middleware [[cors/wrap-cors
                           :access-control-allow-origin [#"http://localhost:8280"]
                           :access-control-allow-methods [:get :post :put :delete]

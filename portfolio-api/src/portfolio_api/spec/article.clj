@@ -1,22 +1,25 @@
 (ns portfolio-api.spec.article
-  (:require [schema.core :as s]))
+  (:require [malli.core :as m]
+            [malli.util :as mu]))
 
-(s/defschema Article
-  {:id s/Str
-   :name s/Str
-   :markdown (s/maybe s/Str)
-   :project-completion (s/constrained s/Int (fn less-than-100? [x] (<= x 100)))
-   :listed s/Bool})
+(def article
+  (m/schema
+   [:map
+    [:id :string]
+    [:name :string]
+    [:markdown [:maybe :string]]
+    [:project-completion [:int {:min 0 :max 100}]]
+    [:listed :boolean]]))
 
-(s/defschema CreateArticleCommand Article)
-(s/defschema CreateArticleResponse {:body (:id Article)})
+(def create-article-command article)
+(def create-article-response (mu/select-keys article [:id]))
 
-(s/defschema GetAllNoMarkdownResponse (dissoc Article :markdown))
+(def get-all-no-markdown-response (mu/dissoc article :markdown))
 
-(s/defschema GetByIdRequest {:id (:id Article)})
-(s/defschema GetByIdResponse (dissoc Article :id))
+(def get-by-id-request (mu/select-keys article [:id]))
+(def get-by-id-response (mu/dissoc article :id))
 
-(s/defschema DeleteArticleCommand {:id (:id Article)})
+(def delete-article-command (mu/select-keys article [:id]))
 
-(s/defschema EditArticleCommandPath {:id (:id Article)})
-(s/defschema EditArticleCommandBody Article)
+(def edit-article-command-path (mu/select-keys article [:id]))
+(def edit-article-command-body article)

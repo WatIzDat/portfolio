@@ -5,17 +5,17 @@
 (defn article-routes []
   ["/article"
    ["" {:post {:handler handler/create
-               :parameters {:body spec/CreateArticleCommand}
-               :responses {200 spec/CreateArticleResponse}}
+               :parameters {:body spec/create-article-command}
+               :responses {200 spec/create-article-response}}
         :get {:handler handler/get-all-no-markdown
-              :responses {200 spec/GetAllNoMarkdownResponse}}}]
+              :responses {200 spec/get-all-no-markdown-response}}}]
    ["/:id" {:get {:handler handler/get-by-id
-                  :parameters {:path spec/GetByIdRequest}
-                  :responses {200 spec/GetByIdResponse}}
+                  :parameters {:path spec/get-by-id-request}
+                  :responses {200 spec/get-by-id-response}}
             :delete {:handler handler/delete
-                     :parameters {:path spec/DeleteArticleCommand}
+                     :parameters {:path spec/delete-article-command}
                      :responses {204 nil}}
             :put {:handler handler/edit
-                  :parameters {:path spec/EditArticleCommandPath
-                               :body spec/EditArticleCommandBody}
+                  :parameters {:path spec/edit-article-command-path
+                               :body spec/edit-article-command-body}
                   :responses {204 nil}}}]])
