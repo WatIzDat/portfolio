@@ -566,10 +566,6 @@ html {
   position: absolute;
 }
 
-.float-right {
-  float: right;
-}
-
 .mb-24 {
   margin-bottom: 6rem;
 }
@@ -590,34 +586,6 @@ html {
   margin-top: 2rem;
 }
 
-.ml-4 {
-  margin-left: 1rem;
-}
-
-.ml-16 {
-  margin-left: 4rem;
-}
-
-.ml-96 {
-  margin-left: 24rem;
-}
-
-.ml-72 {
-  margin-left: 18rem;
-}
-
-.ml-auto {
-  margin-left: auto;
-}
-
-.mr-0 {
-  margin-right: 0px;
-}
-
-.block {
-  display: block;
-}
-
 .flex {
   display: flex;
 }
@@ -636,34 +604,24 @@ html {
   height: 20%;
 }
 
-.size-2\/3 {
-  width: 66.666667%;
-  height: 66.666667%;
-}
-
-.size-full {
-  width: 100%;
-  height: 100%;
-}
-
-.size-12 {
-  width: 3rem;
-  height: 3rem;
-}
-
 .size-16 {
   width: 4rem;
   height: 4rem;
 }
 
-.size-2 {
-  width: 0.5rem;
-  height: 0.5rem;
+.size-2\/3 {
+  width: 66.666667%;
+  height: 66.666667%;
 }
 
 .size-4 {
   width: 1rem;
   height: 1rem;
+}
+
+.size-full {
+  width: 100%;
+  height: 100%;
 }
 
 .h-8 {
@@ -682,12 +640,12 @@ html {
   width: 100%;
 }
 
-.w-4 {
-  width: 1rem;
-}
-
 .flex-grow {
   flex-grow: 1;
+}
+
+.transform {
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
 .flex-row {
@@ -702,10 +660,6 @@ html {
   flex-direction: column;
 }
 
-.items-start {
-  align-items: flex-start;
-}
-
 .items-end {
   align-items: flex-end;
 }
@@ -718,24 +672,12 @@ html {
   justify-content: center;
 }
 
-.justify-between {
-  justify-content: space-between;
-}
-
-.justify-around {
-  justify-content: space-around;
-}
-
-.gap-4 {
-  gap: 1rem;
-}
-
 .gap-1 {
   gap: 0.25rem;
 }
 
-.gap-2 {
-  gap: 0.5rem;
+.gap-4 {
+  gap: 1rem;
 }
 
 .overflow-y-auto {
@@ -811,13 +753,14 @@ html {
   padding-bottom: 0.5rem;
 }
 
-.pr-4 {
-  padding-right: 1rem;
-}
-
 .text-2xl {
   font-size: 1.5rem;
   line-height: 2rem;
+}
+
+.text-5xl {
+  font-size: 3rem;
+  line-height: 1;
 }
 
 .text-lg {
@@ -828,21 +771,6 @@ html {
 .text-xl {
   font-size: 1.25rem;
   line-height: 1.75rem;
-}
-
-.text-3xl {
-  font-size: 1.875rem;
-  line-height: 2.25rem;
-}
-
-.text-9xl {
-  font-size: 8rem;
-  line-height: 1;
-}
-
-.text-5xl {
-  font-size: 3rem;
-  line-height: 1;
 }
 
 .text-white {

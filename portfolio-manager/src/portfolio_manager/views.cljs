@@ -1,6 +1,11 @@
 (ns portfolio-manager.views
   (:require ["quill$default" :as quill]
             [fork.re-frame :as fork]
+            [malli.core :as m]
+            [malli.error :as me]
+            [malli.transform :as mt]
+            [malli.util :as mu]
+            [portfolio-api.spec.article :as spec]
             [portfolio-manager.consts :as consts]
             [portfolio-manager.events :as events]
             [portfolio-manager.subs :as subs]
@@ -98,16 +103,42 @@
           [:div {:class "size-2/3 mb-24"}
            [fork/form {:path [:form]
                        :form-id "form"
+                       :validation
+                       (fn [value]
+                         (println (map type (map val value)))
+                         (let [specs {"name"
+                                      (mu/select-keys spec/article [:name])
+                                      "project-completion"
+                                      (mu/select-keys spec/article [:project-completion])}]
+                           (reduce
+                            #(let [spec (specs (key %2))
+                                   schema-type (mu/find-first
+                                                spec
+                                                (fn [s _ _]
+                                                  (let [type (m/type s)]
+                                                    (if (= :map type)
+                                                      nil
+                                                      type))))
+                                   coerced
+                                   {(keyword (key %2)) (m/decode schema-type (val %2) mt/string-transformer)}]
+                               (println (val %2))
+                               (println coerced)
+                               (merge %1 (me/humanize (m/explain spec coerced))))
+                            {}
+                            value)))
                        :prevent-default? true
                        :clean-on-unmount? true
                        :on-submit #(re-frame/dispatch [::events/article-form-submit %])}
             (fn [{:keys [values
                          form-id
+                         errors
+                         touched
                          handle-change
                          handle-blur
                          submitting?
                          handle-submit
                          set-values]}]
+              (println errors)
               (let [initial-values-should-be-set @(re-frame/subscribe [::subs/initial-values-should-be-set])
                     name @(re-frame/subscribe [::subs/initial-name])
                     project-completion @(re-frame/subscribe [::subs/initial-project-completion])]
@@ -140,12 +171,14 @@
                   [:div.flex.flex-col
                    [:label {:for "project-completion"} "Project Completion (%):"]
                    [:input.border.rounded-lg.border-gray-400.mb-4
-                    {:type "text"
+                    {:type "number"
                      :name "project-completion"
                      :id "project-completion"
                      :on-change (custom-handle-change :project-completion)
                      :on-blur handle-blur
-                     :value (values "project-completion")}]]]
+                     :value (values "project-completion")}]
+                   (when (touched "project-completion")
+                     [:p (first (:project-completion errors))])]]
                  [:div {:class "size-full" :id "editor"}]
                  [:div.flex.flex-row-reverse
                   [:button.bg-blue-500.text-white.px-4.py-2.rounded-lg.mt-4

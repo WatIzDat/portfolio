@@ -2,7 +2,7 @@
 
 
 
- :source-paths ["src" "test"]
+ :source-paths ["src" "test" "../portfolio-api/src"]
 
  :dependencies
  [[reagent "1.1.1"]
@@ -11,6 +11,7 @@
   [fork "2.4.3"]
   [bidi "2.1.6"]
   [clj-commons/pushy "0.3.10"]
+  [metosin/malli "0.16.3"]
 
   [com.teknql/shadow-cljs-tailwind-jit "1.0.0"]
   [binaryage/devtools "1.0.6"]]

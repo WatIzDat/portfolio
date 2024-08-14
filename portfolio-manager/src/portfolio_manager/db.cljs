@@ -13,7 +13,7 @@
         new-article {:id (or id (:id article))
                      :name (or (:name map) (:name article))
                      :markdown (or (:markdown map) (:markdown article))
-                     :project-completion (or (:project-completion map) (:project-completion article) 0)}]
+                     :project-completion (or (:project-completion map) (:project-completion article))}]
 
     (.setItem js/localStorage ls-key (.stringify js/JSON (clj->js new-article)))))
 
