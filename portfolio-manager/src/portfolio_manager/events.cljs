@@ -128,7 +128,6 @@
  (fn [{db :db} [_ {:keys [values path]}]]
    (let [editor (.querySelector js/document consts/editor-id)
          delta (js->clj (.stringify js/JSON (.getContents (q/find editor))))]
-     (println (values "id"))
      {:db (fork/set-submitting db path true)
       :fx (let [id (-> (.. js/window -location -pathname)
                        (string/split #"/")

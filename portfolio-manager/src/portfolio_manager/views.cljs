@@ -123,27 +123,29 @@
                        :form-id "form"
                        :validation
                        (fn [value]
-                         (println (map type (map val value)))
-                         (let [specs {"name"
-                                      (mu/select-keys spec/article [:name])
-                                      "project-completion"
-                                      (mu/select-keys spec/article [:project-completion])}]
-                           (reduce
-                            #(let [spec (specs (key %2))
-                                   schema-type (mu/find-first
-                                                spec
-                                                (fn [s _ _]
-                                                  (let [type (m/type s)]
-                                                    (if (= :map type)
-                                                      nil
-                                                      type))))
-                                   coerced
-                                   {(keyword (key %2)) (m/decode schema-type (val %2) mt/string-transformer)}]
-                               (println (val %2))
-                               (println coerced)
-                               (merge %1 (me/humanize (m/explain spec coerced))))
-                            {}
-                            value)))
+                         (println value)
+                         (reduce
+                          #(let [specs {"name"
+                                        (mu/select-keys spec/article [:name])
+                                        "project-completion"
+                                        (mu/select-keys spec/article [:project-completion])}
+                                 spec (specs (key %2))]
+                             (if (nil? spec)
+                               %1
+                               (let [schema-type (mu/find-first
+                                                  spec
+                                                  (fn [s _ _]
+                                                    (let [type (m/type s)]
+                                                      (if (= :map type)
+                                                        nil
+                                                        type))))
+                                     coerced
+                                     {(keyword (key %2)) (m/decode schema-type (val %2) mt/string-transformer)}]
+                                 (println (val %2))
+                                 (println coerced)
+                                 (merge %1 (me/humanize (m/explain spec coerced))))))
+                          {}
+                          value))
                        :prevent-default? true
                        :clean-on-unmount? true
                        :on-submit #(re-frame/dispatch [::events/article-form-submit %])}
