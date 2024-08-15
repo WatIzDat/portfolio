@@ -82,6 +82,24 @@
                 [:p (if (article :articles/listed) "Listed" "Unlisted")]]]])
            @(re-frame/subscribe [::subs/articles]))]]]])))
 
+(defn form-input [name label-text type values touched handle-blur handle-change errors]
+  [:<>
+   [:label {:for name} label-text]
+   [:input.border.rounded-lg.border-gray-400
+    {:type type
+     :name name
+     :id name
+     :on-change handle-change
+     :on-blur handle-blur
+     :value (values name)
+     :class (when (seq (first ((keyword name) errors)))
+              "border-red-500")}]
+   [:p.text-red-500
+    {:class (when (empty? (first ((keyword name) errors)))
+              "mb-6")}
+    (when (touched name)
+      (first ((keyword name) errors)))]])
+
 (defn article-panel []
   (fn []
     (reagent/create-class
@@ -160,25 +178,15 @@
                   :on-submit handle-submit}
                  [:div.flex
                   [:div.flex.flex-col.mr-4
-                   [:label {:for "name"} "Name:"]
-                   [:input.border.rounded-lg.border-gray-400.mb-4
-                    {:type "text"
-                     :name "name"
-                     :id "name"
-                     :on-change (custom-handle-change :name)
-                     :on-blur handle-blur
-                     :value (values "name")}]]
+                   (form-input
+                    "name" "Name:" "text"
+                    values touched handle-blur (custom-handle-change :name)
+                    errors)]
                   [:div.flex.flex-col
-                   [:label {:for "project-completion"} "Project Completion (%):"]
-                   [:input.border.rounded-lg.border-gray-400.mb-4
-                    {:type "number"
-                     :name "project-completion"
-                     :id "project-completion"
-                     :on-change (custom-handle-change :project-completion)
-                     :on-blur handle-blur
-                     :value (values "project-completion")}]
-                   (when (touched "project-completion")
-                     [:p (first (:project-completion errors))])]]
+                   (form-input
+                    "project-completion" "Project Completion (%):" "number"
+                    values touched handle-blur (custom-handle-change :project-completion)
+                    errors)]]
                  [:div {:class "size-full" :id "editor"}]
                  [:div.flex.flex-row-reverse
                   [:button.bg-blue-500.text-white.px-4.py-2.rounded-lg.mt-4
