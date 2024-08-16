@@ -208,10 +208,16 @@
                     :disabled submitting?}
                    "Delete"]]]))]]]])})))
 
+(defn not-found-panel []
+  [:div.flex.flex-col.justify-center.items-center.h-screen
+   [:h1.text-8xl.mb-8 "404 Not Found"]
+   [:a.text-4xl.text-blue-500.underline {:href "/"} "Back to Dashboard"]])
+
 (defmulti panels identity)
 (defmethod panels :dashboard-panel [] [dashboard-panel])
 (defmethod panels :upload-article-panel [] [article-panel false])
 (defmethod panels :edit-article-panel [] [article-panel true])
+(defmethod panels :not-found-panel [] [not-found-panel])
 
 (defn main-panel []
   (let [active-panel (re-frame/subscribe [::subs/active-panel])]

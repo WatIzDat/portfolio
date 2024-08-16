@@ -39,6 +39,12 @@
         (.stringify js/JSON (clj->js (:initial-markdown db))))})))
 
 (re-frame/reg-event-fx
+ ::get-article-by-id-failure
+ (fn [_ [_ result]]
+   (when (= (:status result) 404)
+     {:fx [[:dispatch [::set-active-panel :not-found-panel]]]})))
+
+(re-frame/reg-event-fx
  ::set-active-panel
  (fn [{db :db} [_ panel-name {:keys [id]}]]
    (let [set-page (assoc db :active-panel panel-name)
@@ -55,7 +61,7 @@
                   :mode :cors
                   :credentials :omit
                   :on-success [::get-article-by-id-success]
-                  :on-failure [::fetch-failure]}]
+                  :on-failure [::get-article-by-id-failure]}]
          article-from-local-storage (db/get-article-from-local-storage id)]
      (println (:markdown article-from-local-storage))
      (case panel-name
@@ -69,7 +75,8 @@
                                               (filter
                                                (complement nil?)
                                                article-from-local-storage))))
-                            :fx [get-article-by-id-effect]}))))
+                            :fx [get-article-by-id-effect]}
+       :not-found-panel {:db set-page}))))
 
 (re-frame/reg-event-db
  ::initial-values-set

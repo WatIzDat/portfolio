@@ -4,9 +4,10 @@
             [re-frame.core :as re-frame]
             [portfolio-manager.events :as events]))
 
-(def routes ["/" {"" :dashboard
-                  ["article"] :upload-article
-                  ["article/" :id] :edit-article}])
+(def routes ["/" [["" :dashboard]
+                  [["article"] :upload-article]
+                  [["article/" :id] :edit-article]
+                  [true :not-found]]])
 
 (defn- parse-url [url]
   (bidi/match-route routes url))
