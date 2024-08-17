@@ -2,7 +2,8 @@
   (:require [re-frame.core :as re-frame]
             ["quill$default" :as quill]
             [portfolio-manager.consts :as consts]
-            [portfolio-manager.db :as db]))
+            [portfolio-manager.db :as db]
+            ["react-hot-toast$default" :as toast]))
 
 (re-frame/reg-fx
  ::set-quill-contents
@@ -19,3 +20,8 @@
  (fn [map]
    (println (:kv map))
    (db/set-article-local-storage (:id map) (:kv map))))
+
+(re-frame/reg-fx
+ ::toast
+ (fn [msg]
+   (toast msg)))

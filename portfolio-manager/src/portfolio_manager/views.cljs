@@ -10,7 +10,8 @@
             [portfolio-manager.events :as events]
             [portfolio-manager.subs :as subs]
             [re-frame.core :as re-frame]
-            [reagent.core :as reagent]))
+            [reagent.core :as reagent]
+            ["react-hot-toast" :refer (Toaster)]))
 
 (def specs {"id"
             (mu/select-keys spec/article [:id])
@@ -63,10 +64,14 @@
        (println errors)
        (first ((keyword name) errors)))]]))
 
+(defn toaster []
+  (Toaster {:reverse-order false}))
+
 (defn dashboard-panel []
   (let [modal-open (reagent/atom false)]
     (fn []
       [:div.flex.justify-center.items-center.h-screen
+       [:f> toaster]
        (when @modal-open
          [:div.size-full.absolute.flex.justify-center.items-center.h-screen.backdrop-blur-md
           {:id "wrapper"
@@ -84,7 +89,6 @@
                        :clean-on-unmount? true
                        :on-submit
                        (fn [state]
-                         (reset! modal-open false)
                          (re-frame/dispatch [::events/create state]))}
             (fn [{:keys [values
                          form-id
@@ -165,6 +169,7 @@
       :reagent-render
       (fn []
         [:<>
+         [:f> toaster]
          [:button.fixed.size-16.text-5xl
           {:on-click #(set! (.. js/window -location -href) "/")}
           "<"]

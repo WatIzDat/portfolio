@@ -103,14 +103,15 @@
    (set! (.. js/window -location -href) "/")
    (fork/set-submitting db path false)))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
  ::fetch-failure
  (fn [_ [_ problem]]
-   (println
-    (case (:status problem)
-      400 "There was a problem with your request"
-      404 "The requested resource was not found"
-      500 "There was an internal server error"))))
+   {:fx [[::effects/toast
+          (case (:status problem)
+            400 "There was a problem with your request"
+            404 "The requested resource was not found"
+            409 "Conflict"
+            500 "There was an internal server error")]]}))
 
 (re-frame/reg-event-db
  ::reset-create-validation
