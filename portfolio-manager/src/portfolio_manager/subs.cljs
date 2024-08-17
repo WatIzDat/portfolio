@@ -31,3 +31,8 @@
  ::listed
  (fn [db _]
    (:listed db)))
+
+(re-frame/reg-sub
+ ::create-validation-failed
+ (fn [db _]
+   (:create-validation-failed db)))

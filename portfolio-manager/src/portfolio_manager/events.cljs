@@ -84,7 +84,7 @@
    (assoc db :initial-values-should-be-set false)))
 
 (re-frame/reg-event-db
- ::upload-success
+ ::create-success
  (fn [db [_ path id]]
    (println "Success!")
    (set! (.. js/window -location -href) (str "/article/" id))
@@ -112,8 +112,36 @@
       404 "The requested resource was not found"
       500 "There was an internal server error"))))
 
+(re-frame/reg-event-db
+ ::reset-create-validation
+ (fn [db _]
+   (println "reset-create-validation")
+   (assoc db :create-validation-failed false)))
+
+(re-frame/reg-event-db
+ ::create-validation-failure
+ (fn [db [_ path]]
+   (assoc (fork/set-waiting db path "id" false) :create-validation-failed true)))
+
 (re-frame/reg-event-fx
- ::upload
+ ::create-validation-success
+ (fn [{db :db} [_ path problem]]
+   (if (= (:status problem) 404)
+     {:db (assoc (fork/set-waiting db path "id" false) :create-validation-failed false)}
+     {:fx [[:dispatch [::fetch-failure problem]]]})))
+
+(re-frame/reg-event-fx
+ ::validate-create-request
+ (fn [_ [_ {:keys [values path]}]]
+   {:fx [[:fetch {:method :get
+                  :url (str "http://localhost:3001/api/article/" (values "id"))
+                  :mode :cors
+                  :credentials :omit
+                  :on-success [::create-validation-failure path]
+                  :on-failure [::create-validation-success path]}]]}))
+
+(re-frame/reg-event-fx
+ ::create
  (fn [_ [_ {:keys [values path]}]]
    {:fx [[:fetch {:method :post
                   :url "http://localhost:3001/api/article"
@@ -127,7 +155,7 @@
                          :listed false}
                   :mode :cors
                   :credentials :omit
-                  :on-success [::upload-success path (values "id")]
+                  :on-success [::create-success path (values "id")]
                   :on-failure [::fetch-failure]}]]}))
 
 (re-frame/reg-event-fx

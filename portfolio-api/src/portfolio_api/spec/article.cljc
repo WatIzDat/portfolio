@@ -5,7 +5,7 @@
 (def article
   (m/schema
    [:map
-    [:id :string]
+    [:id [:string {:min 1}]]
     [:name :string]
     [:markdown [:maybe :string]]
     [:project-completion [:int {:min 0 :max 100}]]

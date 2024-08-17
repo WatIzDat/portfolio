@@ -12,6 +12,57 @@
             [re-frame.core :as re-frame]
             [reagent.core :as reagent]))
 
+(def specs {"id"
+            (mu/select-keys spec/article [:id])
+            "name"
+            (mu/select-keys spec/article [:name])
+            "project-completion"
+            (mu/select-keys spec/article [:project-completion])})
+
+(defn validate [value]
+  (println value)
+  (reduce
+   #(let [spec (specs (key %2))]
+      (if (nil? spec)
+        %1
+        (let [schema-type (mu/find-first
+                           spec
+                           (fn [s _ _]
+                             (let [type (m/type s)]
+                               (if (= :map type)
+                                 nil
+                                 type))))
+              coerced
+              {(keyword (key %2)) (m/decode schema-type (val %2) mt/string-transformer)}]
+          (println (val %2))
+          (println coerced)
+          (merge %1 (me/humanize (m/explain spec coerced))))))
+   {}
+   value))
+
+(defn form-input
+  ([name label-text type values touched handle-blur handle-change errors]
+   (form-input name label-text type values touched handle-blur handle-change errors "" ""))
+  ([name label-text type values touched handle-blur handle-change errors label-class input-class]
+   [:<>
+    [:label {:for name
+             :class label-class} label-text]
+    [:input.border.rounded-lg.border-gray-400
+     {:type type
+      :name name
+      :id name
+      :on-change handle-change
+      :on-blur handle-blur
+      :value (values name)
+      :class (str input-class " " (when (seq (first ((keyword name) errors)))
+                                    "border-red-500"))}]
+    [:p.text-red-500
+     {:class (when (empty? (first ((keyword name) errors)))
+               "mb-6")}
+     (when (touched name)
+       (println errors)
+       (first ((keyword name) errors)))]]))
+
 (defn dashboard-panel []
   (let [modal-open (reagent/atom false)]
     (fn []
@@ -22,34 +73,52 @@
            :on-mouse-down
            #(let [id (.. % -target -id)]
               (when (= id "wrapper")
-                (reset! modal-open false)))}
+                (reset! modal-open false)
+                (re-frame/dispatch [::events/reset-create-validation])))}
           [:div.bg-gray-700.text-white.rounded-2xl.flex.flex-col.items-center {:class "size-1/5"}
-           [:h1.text-2xl.mt-4 "Create New Article"]
+           [:h1.text-2xl.mt-3 "Create New Article"]
            [fork/form {:path [:modal]
                        :form-id "modal"
+                       :validation validate
                        :prevent-default? true
                        :clean-on-unmount? true
                        :on-submit
                        (fn [state]
                          (reset! modal-open false)
-                         (re-frame/dispatch [::events/upload state]))}
+                         (re-frame/dispatch [::events/create state]))}
             (fn [{:keys [values
                          form-id
                          handle-change
                          handle-blur
+                         errors
                          submitting?
-                         handle-submit]}]
+                         handle-submit
+                         send-server-request]}]
               [:form.flex.flex-col.items-center
                {:id form-id
                 :on-submit handle-submit}
-               [:label.text-xl.mt-8 {:for "id"} "Please enter the ID of your new article:"]
-               [:input.border.rounded-lg.border-gray-400.mb-4.bg-gray-900.mt-4.h-8.w-full
-                {:type "text"
-                 :name "id"
-                 :id "id"
-                 :on-change handle-change
-                 :on-blur handle-blur
-                 :value (values "id")}]
+
+               (form-input
+                "id" "Please enter the ID of your new article:" "text"
+                values (fn [] true)
+                handle-blur (fn [evt]
+                              (handle-change evt)
+                              (send-server-request
+                               {:name "id"
+                                :value (fork/retrieve-event-value evt)
+                                :evt :on-blur
+                                :debounce 200}
+                               #(re-frame/dispatch [::events/validate-create-request %])))
+                (let [failed @(re-frame/subscribe [::subs/create-validation-failed])]
+                  (if failed
+                    (assoc errors :id ["ID already exists"])
+                    errors))
+                "text-xl mt-8"
+                "border rounded-lg border-gray-400 bg-gray-900 mt-4 mb-1 h-8 w-full")
+
+               (when (seq (:id errors))
+                 (re-frame/dispatch [::events/reset-create-validation]))
+
                [:button.bg-blue-500.text-white.px-4.py-2.rounded-lg.mt-4
                 {:type "submit"
                  :disabled submitting?}
@@ -82,24 +151,6 @@
                 [:p (if (article :articles/listed) "Listed" "Unlisted")]]]])
            @(re-frame/subscribe [::subs/articles]))]]]])))
 
-(defn form-input [name label-text type values touched handle-blur handle-change errors]
-  [:<>
-   [:label {:for name} label-text]
-   [:input.border.rounded-lg.border-gray-400
-    {:type type
-     :name name
-     :id name
-     :on-change handle-change
-     :on-blur handle-blur
-     :value (values name)
-     :class (when (seq (first ((keyword name) errors)))
-              "border-red-500")}]
-   [:p.text-red-500
-    {:class (when (empty? (first ((keyword name) errors)))
-              "mb-6")}
-    (when (touched name)
-      (first ((keyword name) errors)))]])
-
 (defn article-panel []
   (fn []
     (reagent/create-class
@@ -121,31 +172,7 @@
           [:div {:class "size-2/3 mb-24"}
            [fork/form {:path [:form]
                        :form-id "form"
-                       :validation
-                       (fn [value]
-                         (println value)
-                         (reduce
-                          #(let [specs {"name"
-                                        (mu/select-keys spec/article [:name])
-                                        "project-completion"
-                                        (mu/select-keys spec/article [:project-completion])}
-                                 spec (specs (key %2))]
-                             (if (nil? spec)
-                               %1
-                               (let [schema-type (mu/find-first
-                                                  spec
-                                                  (fn [s _ _]
-                                                    (let [type (m/type s)]
-                                                      (if (= :map type)
-                                                        nil
-                                                        type))))
-                                     coerced
-                                     {(keyword (key %2)) (m/decode schema-type (val %2) mt/string-transformer)}]
-                                 (println (val %2))
-                                 (println coerced)
-                                 (merge %1 (me/humanize (m/explain spec coerced))))))
-                          {}
-                          value))
+                       :validation validate
                        :prevent-default? true
                        :clean-on-unmount? true
                        :on-submit #(re-frame/dispatch [::events/article-form-submit %])}
