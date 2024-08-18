@@ -23,5 +23,7 @@
 
 (re-frame/reg-fx
  ::toast
- (fn [msg]
-   (toast msg)))
+ (fn [map]
+   (if (= (:status map) :success)
+     (toast/success (:msg map))
+     (toast/error (:msg map)))))

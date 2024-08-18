@@ -90,28 +90,30 @@
    (set! (.. js/window -location -href) (str "/article/" id))
    (fork/set-submitting db path false)))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
  ::edit-success
- (fn [db [_ path listed]]
+ (fn [{db :db} [_ path listed]]
    (println "edit success")
-   (assoc (fork/set-submitting db path false) :listed listed)))
+   {:db (assoc (fork/set-submitting db path false) :listed listed)
+    :fx [[::effects/toast {:status :success
+                           :msg "Success!"}]]}))
 
 (re-frame/reg-event-db
  ::delete-success
- (fn [db [_ path]]
+ (fn [_ _]
    (println "delete success")
-   (set! (.. js/window -location -href) "/")
-   (fork/set-submitting db path false)))
+   (set! (.. js/window -location -href) "/")))
 
 (re-frame/reg-event-fx
  ::fetch-failure
  (fn [_ [_ problem]]
    {:fx [[::effects/toast
-          (case (:status problem)
-            400 "There was a problem with your request"
-            404 "The requested resource was not found"
-            409 "Conflict"
-            500 "There was an internal server error")]]}))
+          {:status :error
+           :msg (case (:status problem)
+                  400 "There was a problem with your request."
+                  404 "The requested resource was not found."
+                  409 "The requested resource already exists."
+                  500 "There was an internal server error.")}]]}))
 
 (re-frame/reg-event-db
  ::reset-create-validation
@@ -157,6 +159,16 @@
                   :mode :cors
                   :credentials :omit
                   :on-success [::create-success path (values "id")]
+                  :on-failure [::fetch-failure]}]]}))
+
+(re-frame/reg-event-fx
+ ::delete
+ (fn [_ [_ id path]]
+   {:fx [[:fetch {:method :delete
+                  :url (str "http://localhost:3001/api/article/" id)
+                  :mode :cors
+                  :credentials :omit
+                  :on-success [::delete-success path]
                   :on-failure [::fetch-failure]}]]}))
 
 (re-frame/reg-event-fx

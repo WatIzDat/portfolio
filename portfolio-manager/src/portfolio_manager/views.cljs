@@ -1,5 +1,8 @@
 (ns portfolio-manager.views
   (:require ["quill$default" :as quill]
+            ["react-hot-toast" :refer (Toaster)]
+            ["react-hot-toast$default" :as toast]
+            [clojure.string :as string]
             [fork.re-frame :as fork]
             [malli.core :as m]
             [malli.error :as me]
@@ -10,8 +13,7 @@
             [portfolio-manager.events :as events]
             [portfolio-manager.subs :as subs]
             [re-frame.core :as re-frame]
-            [reagent.core :as reagent]
-            ["react-hot-toast" :refer (Toaster)]))
+            [reagent.core :as reagent]))
 
 (def specs {"id"
             (mu/select-keys spec/article [:id])
@@ -125,7 +127,8 @@
 
                [:button.bg-blue-500.text-white.px-4.py-2.rounded-lg.mt-4
                 {:type "submit"
-                 :disabled submitting?}
+                 :disabled submitting?
+                 :on-click #(when (seq errors) (toast/error "Please fix all errors before continuing."))}
                 "Continue"]])]]])
 
        [:div.flex.flex-col.justify-center.items-center {:class "size-1/3" :inert (when @modal-open "")}
@@ -225,18 +228,26 @@
                  [:div.flex.flex-row-reverse
                   [:button.bg-blue-500.text-white.px-4.py-2.rounded-lg.mt-4
                    {:type "submit"
-                    :on-click #(set-values {"submit-type" :upload})
+                    :on-click (fn []
+                                (set-values {"submit-type" :upload})
+                                (when (seq errors) (toast/error
+                                                    (str "Please fix all errors before "
+                                                         (if listed "editing." "uploading.")))))
                     :disabled submitting?}
                    (if listed "Edit" "Upload")]
                   (when listed
                     [:button.bg-blue-500.text-white.px-4.py-2.rounded-lg.mt-4.mr-4
                      {:type "submit"
-                      :on-click #(set-values {"submit-type" :de-list})
+                      :on-click (fn []
+                                  (set-values {"submit-type" :de-list})
+                                  (when (seq errors) (toast/error "Please fix all errors before de-listing.")))
                       :disabled submitting?}
                      "De-list"])
                   [:button.bg-red-500.text-white.px-4.py-2.rounded-lg.mt-4.mr-4
-                   {:type "submit"
-                    :on-click #(set-values {"submit-type" :delete})
+                   {:on-click #(re-frame/dispatch
+                                [::events/delete (-> (.. js/window -location -pathname)
+                                                     (string/split #"/")
+                                                     (last))])
                     :disabled submitting?}
                    "Delete"]]]))]]]])})))
 
