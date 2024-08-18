@@ -163,7 +163,16 @@
     (reagent/create-class
      {:component-did-mount
       (fn []
-        (let [quill (new quill consts/editor-id (js-obj "theme" "snow"))]
+        (let [quill (new quill
+                         consts/editor-id
+                         (js-obj "theme" "snow"
+                                 "modules" (js-obj "toolbar"
+                                                   (clj->js [[(js-obj "header" (clj->js []))]
+                                                             ["bold" "italic" "underline" "strike"
+                                                              (js-obj "list" "ordered")
+                                                              (js-obj "list" "bullet")]
+                                                             ["blockquote" "code-block"]
+                                                             ["link" "image"]]))))]
           (.on quill "text-change"
                (fn [_ _ _]
                  (println "contents changed")
