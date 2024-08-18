@@ -5,10 +5,11 @@
    :initial-values-should-be-set false})
 
 (def local-storage-key "portfolio-manager")
-(def local-storage-separator ":")
+(def local-storage-article-separator ":")
+(def local-storage-internal-separator ";")
 
 (defn set-article-local-storage [id map]
-  (let [ls-key (str local-storage-key local-storage-separator id)
+  (let [ls-key (str local-storage-key local-storage-article-separator id)
         article (js->clj (.parse js/JSON (.getItem js/localStorage ls-key)) :keywordize-keys true)
         new-article {:id (or id (:id article))
                      :name (or (:name map) (:name article))
@@ -17,8 +18,18 @@
 
     (.setItem js/localStorage ls-key (.stringify js/JSON (clj->js new-article)))))
 
+(defn set-article-order-local-storage [newest-id]
+  (let [ls-key (str local-storage-key local-storage-internal-separator "article-order")
+        item (.parse js/JSON (.getItem js/localStorage ls-key))]
+    (if (nil? item)
+      (.setItem js/localStorage ls-key (.stringify js/JSON (clj->js [newest-id])))
+      (.setItem js/localStorage ls-key (.stringify js/JSON (clj->js (cons newest-id (js->clj item))))))))
+
 (defn get-article-from-local-storage [id]
-  (js->clj (.parse js/JSON (.getItem js/localStorage (str local-storage-key local-storage-separator id))) :keywordize-keys true))
+  (js->clj (.parse js/JSON (.getItem js/localStorage (str local-storage-key local-storage-article-separator id))) :keywordize-keys true))
+
+(defn get-article-order-from-local-storage []
+  (js->clj (.parse js/JSON (.getItem js/localStorage (str local-storage-key local-storage-internal-separator "article-order")))))
 
 (defn remove-article-from-local-storage [id]
-  (.removeItem js/localStorage (str local-storage-key local-storage-separator id)))
+  (.removeItem js/localStorage (str local-storage-key local-storage-article-separator id)))

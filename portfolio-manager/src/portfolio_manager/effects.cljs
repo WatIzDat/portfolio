@@ -22,6 +22,11 @@
    (db/set-article-local-storage (:id map) (:kv map))))
 
 (re-frame/reg-fx
+ ::set-article-order-local-storage
+ (fn [newest-id]
+   (db/set-article-order-local-storage newest-id)))
+
+(re-frame/reg-fx
  ::remove-article-from-local-storage
  (fn [id]
    (db/remove-article-from-local-storage id)))

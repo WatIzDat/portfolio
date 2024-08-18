@@ -1,6 +1,6 @@
 (ns portfolio-manager.subs
-  (:require
-   [re-frame.core :as re-frame]))
+  (:require [portfolio-manager.db :as db]
+            [re-frame.core :as re-frame]))
 
 (re-frame/reg-sub
  ::active-panel
@@ -11,6 +11,13 @@
  ::articles
  (fn [db _]
    (:articles db)))
+
+(re-frame/reg-sub
+ ::ordered-articles
+ :<- [::articles]
+ (fn [articles _]
+   (println articles)
+   (sort-by #(.indexOf (db/get-article-order-from-local-storage) (:articles/id %)) articles)))
 
 (re-frame/reg-sub
  ::initial-name

@@ -164,7 +164,7 @@
                [:div.flex.flex-col.gap-1.items-end.size-4
                 [:p (str (article :articles/project_completion) "%")]
                 [:p (if (article :articles/listed) "Listed" "Unlisted")]]]])
-           @(re-frame/subscribe [::subs/articles]))]]]])))
+           @(re-frame/subscribe [::subs/ordered-articles]))]]]])))
 
 (defn article-panel []
   (fn []

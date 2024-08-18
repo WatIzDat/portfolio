@@ -1,6 +1,7 @@
 (ns portfolio-manager.events.common
   (:require [portfolio-manager.coeffects :as coeffects]
             [portfolio-manager.db :as db]
+            [portfolio-manager.effects :as effects]
             [portfolio-manager.events.get-article-by-id :as get-article-by-id]
             [portfolio-manager.events.get-articles :as get-articles]
             [re-frame.core :as re-frame]
@@ -29,7 +30,8 @@
                                               (filter
                                                (complement nil?)
                                                article-from-local-storage))))
-                            :fx [(get-article-by-id/get-article-by-id id)]}
+                            :fx [(get-article-by-id/get-article-by-id id)
+                                 [::effects/set-article-order-local-storage id]]}
        :not-found-panel {:db set-page}))))
 
 (re-frame/reg-event-db
