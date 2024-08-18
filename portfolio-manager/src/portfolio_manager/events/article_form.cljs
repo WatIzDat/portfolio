@@ -65,3 +65,8 @@
    {:fx [[::effects/set-article-local-storage
           {:id (:initial-id db)
            :kv {name value}}]]}))
+
+(re-frame/reg-event-db
+ ::confirm-delete
+ (fn [db _]
+   (assoc db :confirm-delete true)))

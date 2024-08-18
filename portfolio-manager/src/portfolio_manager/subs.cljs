@@ -36,3 +36,8 @@
  ::create-validation-failed
  (fn [db _]
    (:create-validation-failed db)))
+
+(re-frame/reg-sub
+ ::confirm-delete
+ (fn [db _]
+   (:confirm-delete db)))

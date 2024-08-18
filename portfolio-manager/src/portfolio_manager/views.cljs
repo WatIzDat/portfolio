@@ -72,20 +72,25 @@
 (defn toaster []
   (Toaster {:reverse-order false}))
 
+(defn modal [handle-close contents]
+  [:div.size-full.absolute.flex.justify-center.items-center.h-screen.backdrop-blur-md
+   {:id "wrapper"
+    :on-mouse-down #(handle-close %)}
+   [:div.bg-gray-700.text-white.rounded-2xl.flex.flex-col.items-center {:class "size-1/5"}
+    contents]])
+
 (defn dashboard-panel []
   (let [modal-open (reagent/atom false)]
     (fn []
       [:div.flex.justify-center.items-center.h-screen
        [:f> toaster]
        (when @modal-open
-         [:div.size-full.absolute.flex.justify-center.items-center.h-screen.backdrop-blur-md
-          {:id "wrapper"
-           :on-mouse-down
-           #(let [id (.. % -target -id)]
-              (when (= id "wrapper")
-                (reset! modal-open false)
-                (re-frame/dispatch [::create/reset-create-validation])))}
-          [:div.bg-gray-700.text-white.rounded-2xl.flex.flex-col.items-center {:class "size-1/5"}
+         (modal
+          #(let [id (.. % -target -id)]
+             (when (= id "wrapper")
+               (reset! modal-open false)
+               (re-frame/dispatch [::create/reset-create-validation])))
+          [:<>
            [:h1.text-2xl.mt-3 "Create New Article"]
            [fork/form {:path [:modal]
                        :form-id "modal"
@@ -132,7 +137,7 @@
                 {:type "submit"
                  :disabled submitting?
                  :on-click #(when (seq errors) (toast/error "Please fix all errors before continuing."))}
-                "Continue"]])]]])
+                "Continue"]])]]))
 
        [:div.flex.flex-col.justify-center.items-center {:class "size-1/3" :inert (when @modal-open "")}
         [:div.flex.flex-row.w-full.items-end
@@ -185,6 +190,24 @@
       (fn []
         [:<>
          [:f> toaster]
+        ;;    (when @modal-open
+        ;;      (modal
+        ;;       #(let [id (.. % -target -id)]
+        ;;          (when (= id "wrapper")
+        ;;            (re-frame/dispatch [::article-form/close-delete-modal])))
+        ;;       [:<>
+        ;;        [:h1.text-2xl.mt-3 "Delete Confirmation"]
+        ;;        [:p.text-center.mt-9 "Are you sure you want to delete this article?"]
+        ;;        [:p.text-center "This operation is permanent."]
+        ;;        [:button.bg-blue-500.text-white.px-4.py-2.rounded-lg.mt-4.mr-4
+        ;;         {:on-click #(re-frame/dispatch [::article-form/close-delete-modal])}
+        ;;         "Cancel"]
+        ;;        [:button.bg-red-500.text-white.px-4.py-2.rounded-lg.mt-4.mr-4
+        ;;         {:on-click #(re-frame/dispatch
+        ;;                      [::delete/delete (-> (.. js/window -location -pathname)
+        ;;                                           (string/split #"/")
+        ;;                                           (last))])}
+        ;;         "Delete"]]))
          [:button.fixed.size-16.text-5xl
           {:on-click #(set! (.. js/window -location -href) "/")}
           "<"]
@@ -221,7 +244,8 @@
                         (println evt)
                         (handle-change evt)
                         (re-frame/dispatch [::article-form/article-form-changed name (fork/retrieve-event-value evt)])))
-                    listed @(re-frame/subscribe [::subs/listed])]
+                    listed @(re-frame/subscribe [::subs/listed])
+                    confirm-delete @(re-frame/subscribe [::subs/confirm-delete])]
                 [:form.flex.flex-col.size-full
                  {:id form-id
                   :on-submit handle-submit}
@@ -247,12 +271,27 @@
                     :disabled submitting?}
                    "Save"]
                   [:button.bg-red-500.text-white.px-4.py-2.rounded-lg.mt-4.mr-4
-                   {:on-click #(re-frame/dispatch
-                                [::delete/delete (-> (.. js/window -location -pathname)
-                                                     (string/split #"/")
-                                                     (last))])
+                   {:type "button"
+                    :on-click #(if confirm-delete
+                                 (when (not= (.. % -target -id) "id-confirmation")
+                                   (re-frame/dispatch [::delete/delete
+                                                       (-> (.. js/window -location -pathname)
+                                                           (string/split #"/")
+                                                           (last))
+                                                       (values "id-confirmation")]))
+                                 (re-frame/dispatch [::article-form/confirm-delete]))
                     :disabled submitting?}
-                   "Delete"]
+                   (if confirm-delete
+                     [:div
+                      [:label.mr-2.pointer-events-none {:for "id-confirmation"} "Type the ID and click again to confirm:"]
+                      [:input.border.rounded-lg.border-gray-400.text-black.h-6
+                       {:type "text"
+                        :id "id-confirmation"
+                        :name "id-confirmation"
+                        :on-change handle-change
+                        :on-blur handle-blur
+                        :value (values "id-confirmation")}]]
+                     "Delete")]
                   [:button.bg-blue-500.text-white.px-4.py-2.rounded-lg.mt-4.mr-auto
                    {:type "submit"
                     :on-click (fn []
