@@ -98,11 +98,12 @@
     :fx [[::effects/toast {:status :success
                            :msg "Success!"}]]}))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
  ::delete-success
- (fn [_ _]
+ (fn [_ [_ id]]
    (println "delete success")
-   (set! (.. js/window -location -href) "/")))
+   (set! (.. js/window -location -href) "/")
+   {:fx [[::effects/remove-article-from-local-storage id]]}))
 
 (re-frame/reg-event-fx
  ::fetch-failure
@@ -163,12 +164,12 @@
 
 (re-frame/reg-event-fx
  ::delete
- (fn [_ [_ id path]]
+ (fn [_ [_ id]]
    {:fx [[:fetch {:method :delete
                   :url (str "http://localhost:3001/api/article/" id)
                   :mode :cors
                   :credentials :omit
-                  :on-success [::delete-success path]
+                  :on-success [::delete-success id]
                   :on-failure [::fetch-failure]}]]}))
 
 (re-frame/reg-event-fx

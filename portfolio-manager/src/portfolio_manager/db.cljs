@@ -19,3 +19,6 @@
 
 (defn get-article-from-local-storage [id]
   (js->clj (.parse js/JSON (.getItem js/localStorage (str local-storage-key local-storage-separator id))) :keywordize-keys true))
+
+(defn remove-article-from-local-storage [id]
+  (.removeItem js/localStorage (str local-storage-key local-storage-separator id)))
