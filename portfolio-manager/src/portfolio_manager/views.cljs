@@ -238,27 +238,27 @@
                   [:button.bg-blue-500.text-white.px-4.py-2.rounded-lg.mt-4
                    {:type "submit"
                     :on-click (fn []
-                                (set-values {"submit-type" :upload})
-                                (when (seq errors) (toast/error
-                                                    (str "Please fix all errors before "
-                                                         (if listed "editing." "uploading.")))))
+                                (set-values {"submit-type" :save})
+                                (set-values {"listed" listed})
+                                (when (seq errors) (toast/error "Please fix all errors before saving.")))
                     :disabled submitting?}
-                   (if listed "Edit" "Upload")]
-                  (when listed
-                    [:button.bg-blue-500.text-white.px-4.py-2.rounded-lg.mt-4.mr-4
-                     {:type "submit"
-                      :on-click (fn []
-                                  (set-values {"submit-type" :de-list})
-                                  (when (seq errors) (toast/error "Please fix all errors before de-listing.")))
-                      :disabled submitting?}
-                     "De-list"])
+                   "Save"]
                   [:button.bg-red-500.text-white.px-4.py-2.rounded-lg.mt-4.mr-4
                    {:on-click #(re-frame/dispatch
                                 [::events/delete (-> (.. js/window -location -pathname)
                                                      (string/split #"/")
                                                      (last))])
                     :disabled submitting?}
-                   "Delete"]]]))]]]])})))
+                   "Delete"]
+                  [:button.bg-blue-500.text-white.px-4.py-2.rounded-lg.mt-4.mr-auto
+                   {:type "submit"
+                    :on-click (fn []
+                                (set-values {"submit-type" (if listed :de-list :upload)})
+                                (when (seq errors) (toast/error
+                                                    (str "Please fix all errors before "
+                                                         (if listed "de-listing." "uploading.")))))
+                    :disabled submitting?}
+                   (if listed "De-list" "Upload")]]]))]]]])})))
 
 (defn not-found-panel []
   [:div.flex.flex-col.justify-center.items-center.h-screen

@@ -193,6 +193,16 @@
                         :credentials :omit
                         :on-success [::delete-success path]
                         :on-failure [::fetch-failure]}]]
+              :save [[:fetch {:method :put
+                              :url (str "http://localhost:3001/api/article/" id)
+                              :request-content-type :json
+                              :headers {"Accept" "application/json"
+                                        "Origin" "http://localhost:8280"}
+                              :body (assoc body :listed (values "listed"))
+                              :mode :cors
+                              :credentials :omit
+                              :on-success [::edit-success path (values "listed")]
+                              :on-failure [::fetch-failure]}]]
               :de-list
               [[:fetch {:method :put
                         :url (str "http://localhost:3001/api/article/" id)
