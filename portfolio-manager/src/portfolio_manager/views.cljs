@@ -10,7 +10,10 @@
             [malli.util :as mu]
             [portfolio-api.spec.article :as spec]
             [portfolio-manager.consts :as consts]
-            [portfolio-manager.events :as events]
+            [portfolio-manager.events.article-form :as article-form]
+            [portfolio-manager.events.common :as events]
+            [portfolio-manager.events.create :as create]
+            [portfolio-manager.events.delete :as delete]
             [portfolio-manager.subs :as subs]
             [re-frame.core :as re-frame]
             [reagent.core :as reagent]))
@@ -81,7 +84,7 @@
            #(let [id (.. % -target -id)]
               (when (= id "wrapper")
                 (reset! modal-open false)
-                (re-frame/dispatch [::events/reset-create-validation])))}
+                (re-frame/dispatch [::create/reset-create-validation])))}
           [:div.bg-gray-700.text-white.rounded-2xl.flex.flex-col.items-center {:class "size-1/5"}
            [:h1.text-2xl.mt-3 "Create New Article"]
            [fork/form {:path [:modal]
@@ -91,7 +94,7 @@
                        :clean-on-unmount? true
                        :on-submit
                        (fn [state]
-                         (re-frame/dispatch [::events/create state]))}
+                         (re-frame/dispatch [::create/create state]))}
             (fn [{:keys [values
                          form-id
                          handle-change
@@ -114,7 +117,7 @@
                                 :value (fork/retrieve-event-value evt)
                                 :evt :on-blur
                                 :debounce 200}
-                               #(re-frame/dispatch [::events/validate-create-request %])))
+                               #(re-frame/dispatch [::create/validate-create-request %])))
                 (let [failed @(re-frame/subscribe [::subs/create-validation-failed])]
                   (if failed
                     (assoc errors :id ["ID already exists"])
@@ -123,7 +126,7 @@
                 "border rounded-lg border-gray-400 bg-gray-900 mt-4 mb-1 h-8 w-full")
 
                (when (seq (:id errors))
-                 (re-frame/dispatch [::events/reset-create-validation]))
+                 (re-frame/dispatch [::create/reset-create-validation]))
 
                [:button.bg-blue-500.text-white.px-4.py-2.rounded-lg.mt-4
                 {:type "submit"
@@ -176,7 +179,7 @@
           (.on quill "text-change"
                (fn [_ _ _]
                  (println "contents changed")
-                 (re-frame/dispatch [::events/article-form-changed :markdown (.getContents quill)])))))
+                 (re-frame/dispatch [::article-form/article-form-changed :markdown (.getContents quill)])))))
       :display-name "Edit Article Panel"
       :reagent-render
       (fn []
@@ -192,7 +195,7 @@
                        :validation validate
                        :prevent-default? true
                        :clean-on-unmount? true
-                       :on-submit #(re-frame/dispatch [::events/article-form-submit %])}
+                       :on-submit #(re-frame/dispatch [::article-form/article-form-submit %])}
             (fn [{:keys [values
                          form-id
                          errors
@@ -217,7 +220,7 @@
                       (fn [evt]
                         (println evt)
                         (handle-change evt)
-                        (re-frame/dispatch [::events/article-form-changed name (fork/retrieve-event-value evt)])))
+                        (re-frame/dispatch [::article-form/article-form-changed name (fork/retrieve-event-value evt)])))
                     listed @(re-frame/subscribe [::subs/listed])]
                 [:form.flex.flex-col.size-full
                  {:id form-id
@@ -245,7 +248,7 @@
                    "Save"]
                   [:button.bg-red-500.text-white.px-4.py-2.rounded-lg.mt-4.mr-4
                    {:on-click #(re-frame/dispatch
-                                [::events/delete (-> (.. js/window -location -pathname)
+                                [::delete/delete (-> (.. js/window -location -pathname)
                                                      (string/split #"/")
                                                      (last))])
                     :disabled submitting?}

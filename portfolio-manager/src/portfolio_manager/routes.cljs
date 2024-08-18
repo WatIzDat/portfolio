@@ -2,7 +2,7 @@
   (:require [bidi.bidi :as bidi]
             [pushy.core :as pushy]
             [re-frame.core :as re-frame]
-            [portfolio-manager.events :as events]))
+            [portfolio-manager.events.common :as events]))
 
 (def routes ["/" [["" :dashboard]
                   [["article"] :upload-article]

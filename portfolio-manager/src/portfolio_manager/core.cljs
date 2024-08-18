@@ -2,7 +2,7 @@
   (:require ["quill$default" :as quill]
             [portfolio-manager.config :as config]
             [portfolio-manager.consts :as consts]
-            [portfolio-manager.events :as events]
+            [portfolio-manager.events.common :as events]
             [portfolio-manager.routes :as routes]
             [portfolio-manager.views :as views]
             [re-frame.core :as re-frame]
