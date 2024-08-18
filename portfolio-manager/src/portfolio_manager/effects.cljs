@@ -32,3 +32,8 @@
    (if (= (:status map) :success)
      (toast/success (:msg map))
      (toast/error (:msg map)))))
+
+(re-frame/reg-fx
+ ::set-window-location
+ (fn [href]
+   (set! (.. js/window -location -href) href)))

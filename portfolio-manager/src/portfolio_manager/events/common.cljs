@@ -1,6 +1,6 @@
 (ns portfolio-manager.events.common
-  (:require [portfolio-manager.db :as db]
-            [portfolio-manager.effects :as effects]
+  (:require [portfolio-manager.coeffects :as coeffects]
+            [portfolio-manager.db :as db]
             [portfolio-manager.events.get-article-by-id :as get-article-by-id]
             [portfolio-manager.events.get-articles :as get-articles]
             [re-frame.core :as re-frame]
@@ -13,9 +13,10 @@
 
 (re-frame/reg-event-fx
  ::set-active-panel
- (fn [{db :db} [_ panel-name {:keys [id]}]]
+ [(re-frame/inject-cofx ::coeffects/get-article-from-local-storage)]
+ (fn [{:keys [db get-article-from-local-storage]} [_ panel-name {:keys [id]}]]
    (let [set-page (assoc db :active-panel panel-name)
-         article-from-local-storage (db/get-article-from-local-storage id)]
+         article-from-local-storage (get-article-from-local-storage id)]
      (println (:markdown article-from-local-storage))
      (case panel-name
        :dashboard-panel {:db set-page
@@ -28,7 +29,8 @@
                                               (filter
                                                (complement nil?)
                                                article-from-local-storage))))
-                            :fx [(get-article-by-id/get-article-by-id id)]}))))
+                            :fx [(get-article-by-id/get-article-by-id id)]}
+       :not-found-panel {:db set-page}))))
 
 (re-frame/reg-event-db
  ::initial-values-set

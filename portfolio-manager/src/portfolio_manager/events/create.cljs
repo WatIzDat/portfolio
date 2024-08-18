@@ -1,14 +1,15 @@
 (ns portfolio-manager.events.create
   (:require [fork.re-frame :as fork]
+            [portfolio-manager.effects :as effects]
             [portfolio-manager.events.error-handling :as error-handling]
             [re-frame.core :as re-frame]))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
  ::create-success
- (fn [db [_ path id]]
+ (fn [{db :db} [_ path id]]
    (println "Success!")
-   (set! (.. js/window -location -href) (str "/article/" id))
-   (fork/set-submitting db path false)))
+   {:db (fork/set-submitting db path false)
+    :fx [[::effects/set-window-location (str "/article/" id)]]}))
 
 (re-frame/reg-event-fx
  ::create

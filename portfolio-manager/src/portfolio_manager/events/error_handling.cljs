@@ -16,4 +16,4 @@
 (re-frame/reg-event-db
  ::set-not-found-panel
  (fn [db _]
-   (assoc db :active-panel :not-found)))
+   (assoc db :active-panel :not-found-panel)))

@@ -7,8 +7,8 @@
  ::delete-success
  (fn [_ [_ id]]
    (println "delete success")
-   (set! (.. js/window -location -href) "/")
-   {:fx [[::effects/remove-article-from-local-storage id]]}))
+   {:fx [[::effects/remove-article-from-local-storage id]
+         [::effects/set-window-location "/"]]}))
 
 (re-frame/reg-event-fx
  ::delete
