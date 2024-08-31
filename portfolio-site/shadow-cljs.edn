@@ -1,7 +1,8 @@
 {:nrepl {:port 8778}
 
  :dependencies
- [[rum "0.12.11"]]
+ [[rum "0.12.11"]
+  [com.teknql/shadow-cljs-tailwind-jit "1.0.0"]]
 
  :source-paths
  ["src"]
@@ -15,4 +16,14 @@
         :output-dir "resources/public/js/compiled"
         :asset-path "/js/compiled"
         :modules
-        {:app {:init-fn portfolio-site.core/init}}}}}
+        {:app {:init-fn portfolio-site.core/init}}
+        :dev
+        {:build-hooks
+         [(teknql.tailwind/start-watch!)]}
+        :release
+        {:build-hooks
+         [(teknql.tailwind/compile-release!)]}
+        :devtools
+        {:http-root "resources/public"
+         :http-port 8281}
+        :tailwind/output "resources/public/css/site.css"}}}

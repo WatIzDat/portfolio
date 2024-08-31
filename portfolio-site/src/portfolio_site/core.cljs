@@ -3,7 +3,7 @@
 
 (rum/defc heading []
   [:<>
-   [:h1 "another testa1231asdf"]
+   [:h1.ml-60.text-red-500 "another testa1231asdf"]
    [:h2 "yipee i think this finally works"]
    [:p "test"]])
 
