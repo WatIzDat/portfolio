@@ -11,6 +11,9 @@ pom.xml.asc
 /.prepl-port
 .hgignore
 .hg/
+/resources/public/js/compiled
+/.shadow-cljs
+/node_modules
 
 /.clj-kondo/.cache
 /.lsp/.cache
