@@ -2,7 +2,9 @@
 
  :dependencies
  [[rum "0.12.11"]
-  [com.teknql/shadow-cljs-tailwind-jit "1.0.0"]]
+  [com.teknql/shadow-cljs-tailwind-jit "1.0.0"]
+  [bidi "2.1.6"]
+  [clj-commons/pushy "0.3.10"]]
 
  :source-paths
  ["src"]
