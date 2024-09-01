@@ -4,7 +4,6 @@
             [portfolio-site.state :as state]))
 
 (def routes ["/" [["" :home]
-                  ["test" :test]
                   [true :not-found]]])
 
 (defn- parse-url [url]
