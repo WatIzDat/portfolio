@@ -13,6 +13,13 @@
      (assoc coeffects :delta delta))))
 
 (re-frame/reg-cofx
+ ::html
+ (fn [coeffects _]
+   (let [editor (.querySelector js/document consts/editor-id)
+         html (.getSemanticHTML (q/find editor))]
+     (assoc coeffects :html html))))
+
+(re-frame/reg-cofx
  ::id
  (fn [coeffects _]
    (let [id (-> (.. js/window -location -pathname)

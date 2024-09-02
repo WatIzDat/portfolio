@@ -10,12 +10,14 @@
 (re-frame/reg-event-fx
  ::article-form-submit
  [(re-frame/inject-cofx ::coeffects/delta)
+  (re-frame/inject-cofx ::coeffects/html)
   (re-frame/inject-cofx ::coeffects/id)]
- (fn [{:keys [db delta id]} [_ {:keys [values path]}]]
+ (fn [{:keys [db delta html id]} [_ {:keys [values path]}]]
    {:db (fork/set-submitting db path true)
     :fx (let [body {:id id
                     :name (values "name")
                     :markdown delta
+                    :html html
                     :project-completion (parse-long (str (values "project-completion")))}]
           (case (values "submit-type")
             :delete

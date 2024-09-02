@@ -22,4 +22,4 @@
 (def delete-article-command (mu/select-keys article [:id]))
 
 (def edit-article-command-path (mu/select-keys article [:id]))
-(def edit-article-command-body article)
+(def edit-article-command-body (mu/assoc article :html [:maybe :string]))

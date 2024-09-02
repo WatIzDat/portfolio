@@ -1,7 +1,8 @@
 (ns portfolio-api.handlers.article
-  (:require [portfolio-api.db :refer [db]]
+  (:require [clojure.java.io :as io]
+            [honey.sql :as sql]
             [next.jdbc :as jdbc]
-            [honey.sql :as sql]))
+            [portfolio-api.db :refer [db]]))
 
 (defn create [{{{:keys [id name markdown project-completion listed]} :body} :parameters}]
   (let [exists (jdbc/execute-one!
@@ -18,7 +19,11 @@
                               :name name
                               :markdown markdown
                               :project-completion project-completion
-                              :listed listed}]})))
+                              :listed listed}]}))
+      (let [dir (str "../portfolio-site/resources/partials/" id)]
+        (.mkdir
+         (io/file dir))
+        (spit (str dir "/index.html") "")))
     {:status (if (nil? exists) 200 409)
      :body id}))
 
@@ -51,10 +56,13 @@
       (jdbc/execute!
        db
        (sql/format {:delete-from [:articles]
-                    :where [:= :id id]})))
+                    :where [:= :id id]}))
+      (let [dir (str "../portfolio-site/resources/partials/" id)]
+        (io/delete-file (str dir "/index.html"))
+        (io/delete-file dir)))
     {:status (if exists 204 404)}))
 
-(defn edit [{{{:keys [id name markdown project-completion listed]} :body
+(defn edit [{{{:keys [id name markdown project-completion listed html]} :body
               {prev-id :id} :path} :parameters}]
   (let [exists (jdbc/execute-one!
                 db
@@ -71,7 +79,9 @@
                           :markdown markdown
                           :project-completion project-completion
                           :listed listed}
-                    :where [:= :id prev-id]})))
+                    :where [:= :id prev-id]}))
+      (let [path (str "../portfolio-site/resources/partials/" id "/index.html")]
+        (spit path html)))
     {:status (if exists 204 404)}))
 
 (comment
@@ -87,4 +97,7 @@
    db
    (sql/format {:select [:name :markdown :project-completion]
                 :from [:articles]
-                :where [:= :id "does-this-work"]})))
+                :where [:= :id "does-this-work"]}))
+  (seq (.list (io/file "../portfolio-site/resources/partials")))
+  (.mkdir (io/file "../portfolio-site/resources/partials/test"))
+  (spit "../portfolio-site/resources/partials/test/index.html" "test"))
