@@ -22,8 +22,7 @@
                               :listed listed}]}))
       (let [dir (str "../portfolio-site/resources/partials/" id)]
         (.mkdir
-         (io/file dir))
-        (spit (str dir "/index.html") "")))
+         (io/file dir))))
     {:status (if (nil? exists) 200 409)
      :body id}))
 
@@ -58,7 +57,7 @@
        (sql/format {:delete-from [:articles]
                     :where [:= :id id]}))
       (let [dir (str "../portfolio-site/resources/partials/" id)]
-        (io/delete-file (str dir "/index.html"))
+        (io/delete-file (str dir "/index.html") true)
         (io/delete-file dir)))
     {:status (if exists 204 404)}))
 
@@ -80,8 +79,11 @@
                           :project-completion project-completion
                           :listed listed}
                     :where [:= :id prev-id]}))
-      (let [path (str "../portfolio-site/resources/partials/" id "/index.html")]
-        (spit path html)))
+      (if listed
+        (let [path (str "../portfolio-site/resources/partials/" id "/index.html")]
+          (spit path html))
+        (let [dir (str "../portfolio-site/resources/partials/" id)]
+          (io/delete-file (str dir "/index.html")))))
     {:status (if exists 204 404)}))
 
 (comment

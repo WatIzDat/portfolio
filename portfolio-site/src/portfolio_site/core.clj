@@ -13,7 +13,7 @@
    [:body.bg-slate-900.text-yellow-50
     [:div
      {:id "body"
-      :class "w-5/6 mx-auto my-0"}
+      :class "w-5/6 mx-auto my-0 break-words"}
      page]]))
 
 (defn partial-pages [pages]
