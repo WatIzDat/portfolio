@@ -10,10 +10,35 @@ h2 {
     @apply text-4xl font-bold my-4;
 }
 
+h3 {
+    @apply text-3xl font-bold my-4;
+}
+
 p {
     @apply mb-4;
 }
 
 img {
     @apply my-8;
+}
+
+ol {
+    @apply list-decimal ml-12;
+}
+
+ul {
+    @apply list-disc ml-12;
+}
+
+blockquote {
+    @apply p-4 my-4 border-s-4 border-gray-500 bg-gray-800
+           italic font-medium leading-relaxed;
+}
+
+pre {
+    @apply p-4 my-4 bg-black rounded-xl;
+}
+
+a {
+    @apply text-blue-300 underline;
 }
