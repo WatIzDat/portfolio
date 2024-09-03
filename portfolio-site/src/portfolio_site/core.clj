@@ -8,10 +8,13 @@
     [:meta {:charset "utf-8"}]
     [:meta {:name "viewport"
             :content "width=device-width, initial-scale=1.0"}]
+    [:link {:href "../../css/site.css" :rel "stylesheet"}]
     [:title "Portfolio"]]
-   [:body
-    [:h1 "Test"]
-    [:div {:id "body"} page]]))
+   [:body.bg-slate-900.text-yellow-50
+    [:div
+     {:id "body"
+      :class "w-5/6 mx-auto my-0"}
+     page]]))
 
 (defn partial-pages [pages]
   (zipmap (keys pages)
