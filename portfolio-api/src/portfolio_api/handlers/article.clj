@@ -2,7 +2,8 @@
   (:require [clojure.java.io :as io]
             [honey.sql :as sql]
             [next.jdbc :as jdbc]
-            [portfolio-api.db :refer [db]]))
+            [portfolio-api.db :refer [db]]
+            [cheshire.core :as cheshire]))
 
 (defn create [{{{:keys [id name markdown project-completion listed]} :body} :parameters}]
   (let [exists (jdbc/execute-one!
@@ -19,10 +20,7 @@
                               :name name
                               :markdown markdown
                               :project-completion project-completion
-                              :listed listed}]}))
-      (let [dir (str "../portfolio-site/resources/partials/" id)]
-        (.mkdir
-         (io/file dir))))
+                              :listed listed}]})))
     {:status (if (nil? exists) 200 409)
      :body id}))
 
@@ -58,6 +56,7 @@
                     :where [:= :id id]}))
       (let [dir (str "../portfolio-site/resources/partials/" id)]
         (io/delete-file (str dir "/index.html") true)
+        (io/delete-file (str dir "/data.json") true)
         (io/delete-file dir)))
     {:status (if exists 204 404)}))
 
@@ -79,11 +78,21 @@
                           :project-completion project-completion
                           :listed listed}
                     :where [:= :id prev-id]}))
-      (if listed
-        (let [path (str "../portfolio-site/resources/partials/" id "/index.html")]
-          (spit path html))
-        (let [dir (str "../portfolio-site/resources/partials/" id)]
-          (io/delete-file (str dir "/index.html")))))
+      (let [dir (str "../portfolio-site/resources/partials/" id)
+            index (str dir "/index.html")
+            data (str dir "/data.json")]
+        (if listed
+          (do
+            (.mkdir (io/file dir))
+            (spit index html)
+            (spit
+             data
+             (cheshire/generate-string
+              {:name name :project-completion project-completion})))
+          (do
+            (io/delete-file index true)
+            (io/delete-file data true)
+            (io/delete-file dir)))))
     {:status (if exists 204 404)}))
 
 (comment
