@@ -6,7 +6,8 @@
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [stasis "2023.11.21"]
                  [ring/ring-core "1.12.2"]
-                 [hiccup "2.0.0-RC3"]]
+                 [hiccup "2.0.0-RC3"]
+                 [cheshire "5.13.0"]]
   :ring {:handler portfolio-site.core/app}
   :profiles {:dev {:plugins [[lein-ring "0.12.5"]]}}
   :repl-options {:init-ns portfolio-site.core})

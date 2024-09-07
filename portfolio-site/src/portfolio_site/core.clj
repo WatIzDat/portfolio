@@ -1,7 +1,8 @@
 (ns portfolio-site.core
   (:require [clojure.java.io :as io]
             [hiccup.page :refer [html5]]
-            [stasis.core :as stasis]))
+            [stasis.core :as stasis]
+            [cheshire.core :as cheshire]))
 
 (def page-data
   (let [dirs (seq (.list (io/file "./resources/partials/")))]
@@ -26,7 +27,7 @@
   (zipmap (keys pages)
           (map layout-page (vals pages))))
 
-(defn index-page [pages]
+(defn index-page [_]
   (html5
    [:head
     [:meta {:charset "utf-8"}]
@@ -35,8 +36,21 @@
     [:link {:href "../../css/site.css" :rel "stylesheet"}]
     [:title "Portfolio"]]
    [:body.bg-slate-900.text-yellow-50
-    [:div.flex.justify-center.items-center.h-screen
-     [:h1.text-9xl.font-black "my portfolio"]]]))
+    [:div.flex.flex-col.justify-center.items-center.h-screen.gap-8
+     [:h1.text-9xl.font-black "my portfolio"]
+     [:div
+      {:class "w-1/2"}
+      [:h2 "Completed Projects"]
+      [:ul.list-none.ml-0.border-4.border-yellow-50.rounded-lg.p-4.flex.flex-col.gap-4
+       (->> page-data
+            (map #(first {(key %) (cheshire/parse-string (val %) true)}))
+            (filter #(= (:project-completion (val %)) 100))
+            (map
+             (fn [x]
+               [:li
+                [:button.bg-slate-800.py-4.rounded-lg.w-full
+                 {:onclick (format "window.location.href='/%s'" (key x))}
+                 [:h3.text-center.m-0 (:name (val x))]]])))]]]]))
 
 (defn get-pages []
   (println page-data)
