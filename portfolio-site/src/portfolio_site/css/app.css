@@ -42,3 +42,11 @@ pre {
 a {
     @apply text-blue-300 underline;
 }
+
+.preview * {
+    @apply text-base inline bg-inherit p-0 m-0 border-none;
+}
+
+.preview > :not(:last-child) {
+    @apply mr-2;
+}
