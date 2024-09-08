@@ -17,7 +17,14 @@
  :<- [::articles]
  (fn [articles _]
    (println articles)
-   (sort-by #(.indexOf (db/get-article-order-from-local-storage) (:articles/id %)) articles)))
+   (->> articles
+        (group-by
+         #(.indexOf (db/get-article-order-from-local-storage) (:articles/id %)))
+        (sort-by key)
+        (partition-by #(= (key %) -1))
+        (reverse)
+        (apply concat)
+        (mapcat second))))
 
 (re-frame/reg-sub
  ::initial-name
