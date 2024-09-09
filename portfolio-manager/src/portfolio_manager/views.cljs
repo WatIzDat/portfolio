@@ -249,6 +249,10 @@
                 [:form.flex.flex-col.size-full
                  {:id form-id
                   :on-submit handle-submit}
+                 ;; Prevent implicit submission
+                 [:button.hidden
+                  {:type "submit"
+                   :disabled ""}]
                  [:div.flex
                   [:div.flex.flex-col.mr-4
                    (form-input

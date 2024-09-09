@@ -57,7 +57,7 @@
       (let [dir (str "../portfolio-site/resources/partials/" id)]
         (io/delete-file (str dir "/index.html") true)
         (io/delete-file (str dir "/data.json") true)
-        (io/delete-file dir)))
+        (io/delete-file dir true)))
     {:status (if exists 204 404)}))
 
 (defn edit [{{{:keys [id name markdown project-completion listed html]} :body

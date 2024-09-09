@@ -23,7 +23,6 @@
           (map layout-page (vals pages))))
 
 (defn index-page [page-data pages]
-  (println pages)
   (html5
    [:head
     [:meta {:charset "utf-8"}]
@@ -46,7 +45,7 @@
                 [:button.bg-slate-800.py-4.rounded-lg.w-full
                  {:onclick (format "window.location.href='/%s'" (key x))}
                  [:h3.text-center.m-0 (:name (val x))]
-                 [:div.preview.line-clamp-2.overflow-auto
+                 [:div.preview.line-clamp-2
                   {:inert ""}
                   (pages (format "/%s/index.html" (key x)))]]])))]
 
@@ -60,7 +59,7 @@
                 [:button.bg-slate-800.py-4.rounded-lg.w-full
                  {:onclick (format "window.location.href='/%s'" (key x))}
                  [:h3.text-center.m-0 (:name (val x))]
-                 [:div.preview.line-clamp-2.overflow-auto
+                 [:div.preview.line-clamp-2
                   {:inert ""}
                   (pages (format "/%s/index.html" (key x)))]]])))]]]]))
 
