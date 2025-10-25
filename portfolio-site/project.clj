@@ -9,5 +9,6 @@
                  [hiccup "2.0.0-RC3"]
                  [cheshire "5.13.0"]]
   :ring {:handler portfolio-site.core/app}
+  :aliases {"build-site" ["run" "-m" "portfolio-site.core/export"]}
   :profiles {:dev {:plugins [[lein-ring "0.12.5"]]}}
   :repl-options {:init-ns portfolio-site.core})
