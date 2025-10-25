@@ -57,7 +57,7 @@
              (fn [x]
                [:li
                 [:button.bg-slate-800.py-4.rounded-lg.w-full
-                 {:onclick (format "window.location.href='/%s'" (key x))}
+                 {:onclick (format "window.location.href='%s'" (key x))}
                  [:h3.text-center.m-0 (:name (val x))]
                  [:div.preview.line-clamp-2
                   {:inert ""}
