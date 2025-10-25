@@ -14,6 +14,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Setup Clojure
+      uses: DeLaGuardo/setup-clojure@13.4
+      with:
+        lein: 2.10.0
     - name: Build site
       run: lein build-site
     - name: Upload artifact
