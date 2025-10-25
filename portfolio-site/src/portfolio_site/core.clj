@@ -28,7 +28,7 @@
     [:meta {:charset "utf-8"}]
     [:meta {:name "viewport"
             :content "width=device-width, initial-scale=1.0"}]
-    [:link {:href "/css/site.css" :rel "stylesheet"}]
+    [:link {:href "css/site.css" :rel "stylesheet"}]
     [:title "Portfolio"]]
    [:body.bg-slate-900.text-yellow-50
     [:div.flex.flex-col.justify-center.items-center.h-screen.gap-8
